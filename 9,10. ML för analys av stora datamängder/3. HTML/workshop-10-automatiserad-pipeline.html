@@ -1,0 +1,2811 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pass 10 · Någon annan ska kunna köra den</title>
+<style>
+:root{--bg:#f8efec;--paper:#fffaf8;--ink:#341d1d;--muted:#755b58;--accent:#a33a3a;--accent2:#637a54;--soft:#edd7d2;--line:#d6b3ad;--good:#2f7d4f;--bad:#b23a3a;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% 0%, var(--soft) 0, transparent 42%),
+    radial-gradient(circle at 92% 12%, var(--soft) 0, transparent 30%),
+    linear-gradient(180deg,var(--bg),#fff 88%);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.28;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(180deg,#000,transparent 70%);
+}
+.page{max-width:1180px;margin:0 auto;padding:24px 18px 64px}
+.hero{
+  position:relative;overflow:hidden;background:var(--paper);border:2px solid var(--ink);
+  border-radius:24px;padding:clamp(24px,5vw,54px);box-shadow:9px 9px 0 var(--ink);
+}
+.hero::after{
+  content:"";position:absolute;width:330px;height:330px;border-radius:50%;
+  right:-130px;top:-150px;background:var(--soft);border:2px solid var(--ink);opacity:.75;z-index:0;
+}
+.hero>*{position:relative;z-index:1}
+.hero-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.kicker,.section-kicker,.timer-label{
+  display:inline-block;font-size:.74rem;font-weight:900;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--accent);
+}
+.badge{
+  display:inline-block;border:1.5px solid var(--ink);border-radius:999px;padding:5px 10px;
+  font-size:.72rem;font-weight:800;background:var(--soft);white-space:nowrap;
+}
+h1,h2,h3,h4{font-family:ui-serif,Georgia,"Times New Roman",serif;line-height:1.08;letter-spacing:-.02em}
+h1{font-size:clamp(2.2rem,6vw,5rem);margin:.35rem 0 .65rem;max-width:15ch}
+h2{font-size:clamp(1.6rem,3.2vw,2.6rem);margin:.25rem 0 .5rem}
+h3{font-size:1.25rem;margin:.1rem 0 .45rem}
+h4{font-size:1rem;margin:.1rem 0 .3rem}
+.lead{font-size:clamp(1.02rem,1.5vw,1.27rem);max-width:72ch;margin:0 0 16px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}
+.chip{
+  display:inline-flex;gap:6px;align-items:baseline;background:#fff;border:1.5px solid var(--line);
+  border-radius:999px;padding:6px 11px;font-size:.8rem;
+}
+.chip b{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.question{
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;background:var(--soft);
+  border-left:6px solid var(--accent);border-radius:0 14px 14px 0;padding:12px 16px;margin:18px 0;
+}
+.question span{font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.question strong{font-family:ui-serif,Georgia,serif;font-size:1.12rem}
+.goal-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.goal-strip>div{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:11px 13px}
+.goal-strip span{display:block;font-size:.68rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+.goal-strip strong{font-size:.9rem;line-height:1.35;display:block}
+.timer-bar{
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--ink);color:var(--paper);border-radius:16px;padding:12px 16px;margin-top:18px;
+}
+.timer-bar .timer-label{color:var(--soft)}
+.timer-display{font-variant-numeric:tabular-nums;font-size:1.75rem;font-weight:900;letter-spacing:.06em;line-height:1.1}
+.timer-actions{display:flex;gap:7px;flex-wrap:wrap}
+button{font:inherit}
+.btn,.timer-actions button,.tab,.option,.decision-option{
+  cursor:pointer;border:1.5px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);
+  padding:8px 12px;font-weight:750;transition:transform .12s ease,background .12s ease,box-shadow .12s ease;
+}
+.btn:hover,.timer-actions button:hover,.tab:hover,.option:hover,.decision-option:hover{transform:translateY(-1px);box-shadow:2px 2px 0 var(--ink)}
+.btn.primary{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.small{padding:5px 9px;font-size:.8rem}
+button:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+.course-card,.panel,.plan{background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--soft)}
+.course-card{margin:26px 0;padding:clamp(18px,3vw,30px)}
+.course-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:12px}
+.quote-box{background:var(--soft);border-radius:14px;padding:14px 18px;border:1px solid var(--line)}
+blockquote{margin:0;font-family:ui-serif,Georgia,serif;font-size:1.06rem;line-height:1.45}
+blockquote::before{content:"”";font-size:2.5rem;line-height:0;vertical-align:-.35rem;color:var(--accent);margin-right:3px}
+cite{display:block;margin-top:10px;font-size:.76rem;font-style:normal;color:var(--muted)}
+.outcomes ul{margin:.3rem 0 0;padding-left:1.1rem}
+.outcomes li{margin:.35rem 0}
+.why{margin:14px 0 0;font-size:.95rem;color:var(--muted)}
+.plan{margin:26px 0;padding:clamp(18px,3vw,30px)}
+.section-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.time-total{font-size:.78rem;font-weight:800;color:var(--muted);border-bottom:2px solid var(--accent2)}
+.plan-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+.timeline{display:grid;gap:10px}
+.time-row{display:grid;grid-template-columns:104px 1fr;gap:12px;border-bottom:1px dashed var(--line);padding:9px 0}
+.time-row:last-child{border-bottom:0}
+.time-row time{font-size:.78rem;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums}
+.time-row strong{display:block;font-size:.96rem}
+.time-row p{margin:2px 0 0;font-size:.86rem;color:var(--muted)}
+.python-card{background:#201f1c;color:#f8f2e5;border-radius:16px;padding:16px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--accent2);overflow:hidden}
+.python-card h3{color:#fff;margin-top:4px}
+.python-card p{font-size:.86rem;color:#d8d0c2}
+.python-card .tag{display:inline-block;background:var(--accent2);color:#201f1c;border-radius:999px;padding:3px 9px;font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+pre{margin:10px 0;padding:12px;background:#12110f;border:1px solid #47433b;border-radius:10px;overflow:auto;font-size:.76rem;line-height:1.55}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+.k{color:#f0b37e}.s{color:#a8d08d}.c{color:#8e9a85;font-style:italic}.n{color:#e8c07d}.fn{color:#8fd3e8}
+.material-card{margin-top:14px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:13px 15px}
+.material-card h3{font-size:1rem}
+.material-card ul{margin:.3rem 0 0;padding-left:1rem}
+.material-card li{font-size:.8rem;margin:.2rem 0;color:var(--muted)}
+.callout-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.callout{border-radius:14px;padding:12px 14px;border:1.5px solid var(--line);background:#fff}
+.callout span{display:block;font-size:.67rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase;margin-bottom:3px}
+.callout p{margin:0;font-size:.87rem}
+.callout.warn{border-left:5px solid var(--bad)}
+.callout.warn span{color:var(--bad)}
+.callout.safe{border-left:5px solid var(--good)}
+.callout.safe span{color:var(--good)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:28px 0 18px;padding:8px;background:var(--paper);border:2px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 var(--ink)}
+.tab{border-radius:10px;background:transparent;border-color:transparent;padding:9px 13px;font-size:.9rem}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.panel{display:none;padding:clamp(18px,3vw,30px);margin-bottom:22px}
+.panel.active{display:block;animation:rise .22s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px}
+.panel-head p{max-width:75ch;margin:.2rem 0 0;color:var(--muted);font-size:.94rem}
+.panel-time{font-size:.78rem;font-weight:900;color:var(--accent);border-bottom:2px solid var(--accent2);white-space:nowrap}
+.task-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.task{background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:16px;box-shadow:4px 4px 0 var(--soft);min-width:0}
+.task.wide{grid-column:1/-1}
+.task-top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+.num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--paper);font-weight:900;font-size:.82rem}
+.time-pill{font-size:.7rem;font-weight:800;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--accent)}
+.task p{font-size:.9rem;color:var(--muted)}
+.quiz-question{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.quiz-question:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.q-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.q-num{font-size:.68rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.q-hint{font-size:.68rem;color:var(--muted)}
+.q-text{font-weight:750;color:var(--ink)!important;margin:.25rem 0 .55rem}
+.options{display:grid;gap:7px}
+.option{display:flex;gap:9px;text-align:left;font-weight:600;font-size:.86rem;padding:8px 10px;border-color:var(--line);background:#fff}
+.option-mark{display:inline-grid;place-items:center;flex:0 0 22px;height:22px;border-radius:50%;background:var(--soft);font-size:.68rem;font-weight:900;color:var(--accent)}
+.option.correct{background:#e8f5e9;border-color:var(--good)}
+.option.wrong{background:#fdeaea;border-color:var(--bad)}
+.option:disabled{cursor:default;opacity:.9}
+.feedback{margin-top:9px;border-radius:10px;padding:9px 11px;font-size:.84rem;line-height:1.45}
+.feedback.good{background:#e8f5e9;border-left:4px solid var(--good)}
+.feedback.bad{background:#fdeaea;border-left:4px solid var(--bad)}
+.ok{color:var(--good);font-weight:800}
+.timer-bar.is-done{box-shadow:0 0 0 3px var(--accent2) inset}
+.match-row{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;align-items:center;margin:.45rem 0}
+.match-row label{font-weight:750;font-size:.86rem}
+select,textarea{font:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:9px;padding:8px 9px;width:100%}
+select.correct{border-color:var(--good);background:#e8f5e9}
+select.wrong{border-color:var(--bad);background:#fdeaea}
+.mini-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.decision-card{border:1.5px solid var(--line);border-radius:13px;padding:12px;margin:.7rem 0;background:#fff}
+.decision-card p{margin:.1rem 0 .5rem;color:var(--ink);font-weight:700;font-size:.9rem}
+.decision-options{display:grid;gap:6px}
+.decision-option{text-align:left;font-size:.84rem;font-weight:600;border-color:var(--line);padding:7px 9px}
+.decision-option.correct{background:#e8f5e9;border-color:var(--good)}
+.decision-option.wrong{background:#fdeaea;border-color:var(--bad)}
+.decision-option:disabled{cursor:default}
+.exit-card{margin-top:16px;background:var(--soft);border:1.5px solid var(--ink);border-radius:16px;padding:16px}
+.exit-card label{display:block;font-size:.82rem;font-weight:800;margin:10px 0 4px}
+.exit-card textarea{min-height:60px;resize:vertical;background:#fff}
+.save-note{font-size:.78rem;font-weight:750;color:var(--good);margin-left:8px}
+.group-board{display:grid;gap:14px}
+.scenario{background:var(--soft);border:1.5px solid var(--ink);border-radius:16px;padding:15px}
+.scenario p{margin:.2rem 0 .6rem;font-size:.92rem}
+.roles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.role{background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 10px;font-size:.8rem}
+.role b{color:var(--accent)}
+.group-decisions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.group-decisions label,.group-notes label{display:block;font-size:.8rem;font-weight:800;margin-bottom:4px}
+.group-notes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.group-notes textarea{min-height:70px;resize:vertical}
+.group-summary{background:#fff;border:1.5px dashed var(--accent);border-radius:13px;padding:12px 14px;min-height:52px}
+.group-summary h4{color:var(--accent);margin-bottom:.25rem}
+.group-summary p{margin:.25rem 0;font-size:.86rem}
+.summary-note{color:var(--muted);font-size:.78rem!important;margin-top:.5rem!important}
+.checklist{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:12px 14px}
+.checklist h4{margin-bottom:.4rem}
+.checklist label{display:flex;gap:8px;align-items:flex-start;font-size:.85rem;margin:.35rem 0;cursor:pointer}
+.checklist input{margin-top:3px;accent-color:var(--accent)}
+.progress{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.74rem;font-weight:800;color:var(--muted)}
+.progress-track{flex:1;height:8px;background:var(--soft);border-radius:999px;overflow:hidden}
+.progress-track span{display:block;height:100%;width:0;background:var(--accent);transition:width .2s ease}
+.facit-list{display:grid;gap:10px}
+details.facit{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:0 14px}
+details.facit summary{cursor:pointer;font-weight:800;padding:11px 0;list-style:none;display:flex;justify-content:space-between;gap:8px}
+details.facit summary::-webkit-details-marker{display:none}
+details.facit summary::after{content:"+";font-size:1.2rem;color:var(--accent);line-height:1}
+details.facit[open] summary::after{content:"−"}
+details.facit .facit-body{padding:0 0 12px;font-size:.88rem}
+details.facit ol,details.facit ul{margin:.3rem 0;padding-left:1.15rem}
+details.facit li{margin:.35rem 0}
+.foot{text-align:center;color:var(--muted);font-size:.78rem;margin-top:26px}
+.foot strong{color:var(--accent)}
+@media(max-width:820px){
+  .goal-strip,.course-grid,.plan-grid,.task-grid,.callout-grid,.group-decisions,.group-notes{grid-template-columns:1fr}
+  .task.wide{grid-column:auto}
+  .roles{grid-template-columns:1fr}
+  .time-row{grid-template-columns:84px 1fr}
+  h1{max-width:20ch}
+}
+@media(max-width:520px){
+  .page{padding:12px 10px 40px}
+  .hero{padding:20px 16px;border-radius:18px;box-shadow:5px 5px 0 var(--ink)}
+  .timer-bar{align-items:flex-start}
+  .timer-display{font-size:1.45rem}
+  .match-row{grid-template-columns:1fr}
+  .match-row label{margin-top:4px}
+}
+@media print{
+  body::before,.tabs,.timer-bar,.btn,.timer-actions{display:none!important}
+  .panel{display:block!important;box-shadow:none;break-inside:avoid}
+  .page{max-width:none}
+}
+
+/* === Interaktiv experimentverkstad === */
+:root{--warn:#a96618;}
+.lab-zone{margin:18px 0 16px;padding:0;background:transparent;border:0;box-shadow:none}
+.lab-banner{
+  background:linear-gradient(135deg,var(--soft),#fff 70%);
+  border:2px solid var(--ink);border-radius:18px;padding:16px 18px;margin-bottom:12px;
+  box-shadow:5px 5px 0 var(--ink);
+}
+.lab-banner h2{margin:.1rem 0 .3rem;font-size:clamp(1.35rem,2.6vw,2rem)}
+.lab-banner p{margin:.2rem 0 .7rem;font-size:.9rem;color:var(--muted);max-width:80ch}
+.lab-badge{display:inline-block;background:var(--accent);color:var(--paper);border-radius:999px;padding:4px 10px;font-size:.67rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.lab-card{background:#fff;border:1.5px solid var(--ink);border-radius:16px;padding:16px;box-shadow:4px 4px 0 var(--soft);margin:12px 0}
+.lab-card-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:6px}
+.lab-card h3{margin:.1rem 0 .35rem}
+.lab-card p{font-size:.88rem;color:var(--muted);margin:.2rem 0 .7rem}
+.lab-step{display:inline-block;background:var(--soft);border:1px solid var(--line);color:var(--accent);border-radius:999px;padding:3px 9px;font-size:.66rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.chart-grid{display:grid;grid-template-columns:1.45fr .85fr;gap:16px;align-items:start}
+.chart-box{min-width:0}
+.lab-chart{width:100%;height:auto;display:block;background:#fff;border:1.5px solid var(--line);border-radius:14px}
+.lab-chart text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:10px;fill:var(--muted)}
+.lab-chart .grid-line{stroke:var(--line);stroke-dasharray:2 4;opacity:.75}
+.lab-chart .axis{stroke:var(--ink);stroke-width:1.2;opacity:.6}
+.lab-chart .series-a{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.lab-chart .series-b{fill:none;stroke:var(--accent2);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.lab-chart .current-line{stroke:var(--ink);stroke-width:1;stroke-dasharray:4 4;opacity:.55}
+.lab-chart .dot-a{fill:var(--accent);stroke:#fff;stroke-width:2}
+.lab-chart .dot-b{fill:var(--accent2);stroke:#fff;stroke-width:2}
+.lab-chart .axis-title{font-size:10px;font-weight:700;fill:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;font-size:.76rem;font-weight:700;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:18px;height:3px;border-radius:999px;display:inline-block;background:var(--accent)}
+.legend .b i{background:var(--accent2)}
+.slider-box{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:12px}
+.slider-box label{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:.82rem;font-weight:800;margin-bottom:8px}
+.slider-box output{font-variant-numeric:tabular-nums;font-size:1.05rem;color:var(--accent)}
+.slider-box input[type="range"]{width:100%;accent-color:var(--accent);margin:2px 0 12px}
+.metric-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 9px}
+.metric span{display:block;font-size:.66rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.metric strong{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.metric.a{border-left:4px solid var(--accent)}
+.metric.a strong{color:var(--accent)}
+.metric.b{border-left:4px solid var(--accent2)}
+.metric.b strong{color:var(--accent2)}
+.insight{margin-top:10px;border-radius:11px;padding:9px 11px;font-size:.82rem;line-height:1.45;background:#fff;border-left:4px solid var(--line);color:var(--ink)}
+.insight.good{border-left-color:var(--good);background:#edf8ef}
+.insight.warn{border-left-color:var(--warn);background:#fff6e6}
+.insight.bad{border-left-color:var(--bad);background:#fdeaea}
+.lab-explain{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.lab-explain summary{cursor:pointer;font-weight:800;font-size:.82rem;color:var(--accent)}
+.lab-explain p{font-size:.84rem;color:var(--ink);margin:.45rem 0}
+.diagram-wrap{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:8px;overflow:auto}
+.flow-svg{width:100%;min-width:560px;height:auto;display:block;color:var(--ink)}
+.diagram-node{cursor:pointer}
+.diagram-node rect{fill:var(--soft);stroke:var(--ink);stroke-width:1.5;transition:fill .15s ease}
+.diagram-node:hover rect,.diagram-node:focus rect{fill:#fff}
+.diagram-node.active rect{fill:var(--accent)}
+.diagram-node text{fill:var(--ink);font-size:12px;font-weight:800;pointer-events:none}
+.diagram-node.active text{fill:var(--paper)}
+.diagram-node .hint{font-size:9px;font-weight:600;fill:var(--muted)}
+.diagram-node.active .hint{fill:var(--soft)}
+.arrow{stroke:var(--ink);stroke-width:1.5;fill:none;opacity:.7}
+.diagram-output{margin-top:9px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:48px}
+.diagram-output strong{display:block;color:var(--accent);font-size:.9rem}
+.diagram-output p{margin:.2rem 0 0;font-size:.84rem}
+.table-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:.4rem 0 .7rem}
+.table-toolbar label{font-size:.74rem;font-weight:800;color:var(--muted)}
+.table-toolbar select{width:auto;min-width:150px;padding:6px 8px;border-radius:8px}
+.sort-btn,.table-reset{font:inherit;cursor:pointer;border:1.5px solid var(--ink);border-radius:8px;background:#fff;padding:6px 9px;font-size:.74rem;font-weight:800}
+.sort-btn:hover,.table-reset:hover{background:var(--soft)}
+.table-summary{font-size:.8rem;border-radius:10px;padding:7px 10px;margin:0 0 8px;background:var(--soft);border-left:4px solid var(--line)}
+.table-summary.good{background:#edf8ef;border-left-color:var(--good)}
+.table-summary.warn{background:#fff6e6;border-left-color:var(--warn)}
+.table-summary.bad{background:#fdeaea;border-left-color:var(--bad)}
+.table-wrap{overflow:auto;border:1.5px solid var(--line);border-radius:12px}
+.lab-table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:620px}
+.lab-table th{text-align:left;background:var(--soft);padding:8px 9px;border-bottom:1.5px solid var(--ink);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.lab-table td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+.lab-table tr:last-child td{border-bottom:0}
+.lab-table tr.row-good td{background:#f1faf2}
+.lab-table tr.row-warn td{background:#fff8ea}
+.lab-table tr.row-bad td{background:#fdf0f0}
+.lab-table td:nth-child(4){font-size:.76rem;color:var(--muted)}
+.score-cell{display:flex;gap:7px;align-items:center;min-width:130px}
+.score-cell input{width:58px;padding:4px 5px;border:1px solid var(--line);border-radius:6px;font:inherit;font-size:.76rem;background:#fff}
+.score-bar{flex:1;height:7px;border-radius:999px;background:#e7e2d9;overflow:hidden;min-width:40px}
+.score-bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s ease}
+.row-good .score-bar i{background:var(--good)}
+.row-warn .score-bar i{background:var(--warn)}
+.row-bad .score-bar i{background:var(--bad)}
+.table-hint{font-size:.76rem;color:var(--muted);margin:.5rem 0 0}
+.quiz-jump{display:inline-block;margin-left:6px;font-size:.78rem;font-weight:800;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.solo-card{margin-top:12px;background:#fff;border:1.5px dashed var(--accent2);border-radius:12px;padding:10px 12px;font-size:.84rem}
+.solo-card strong{color:var(--accent2)}
+.final-quiz{scroll-margin-top:18px;margin:26px 0;background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--soft);padding:clamp(18px,3vw,30px)}
+.final-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.final-head p{max-width:75ch;margin:.2rem 0 0;color:var(--muted);font-size:.92rem}
+.final-score{font-size:1.1rem;font-weight:900;color:var(--accent);background:var(--soft);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.final-q{background:#fff;border:1.5px solid var(--line);border-radius:13px;padding:12px;margin:9px 0}
+.final-q-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.final-q-head span{font-size:.68rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.final-q p{margin:.3rem 0 .55rem;font-size:.88rem;font-weight:750}
+.final-options{display:grid;gap:6px}
+.final-option{text-align:left;border:1.5px solid var(--line);border-radius:8px;background:#fff;padding:7px 9px;font:inherit;font-size:.83rem;font-weight:600;cursor:pointer}
+.final-option:hover{background:var(--soft)}
+.final-option.selected{background:var(--soft);border-color:var(--accent)}
+.final-option.correct{background:#e8f5e9;border-color:var(--good)}
+.final-option.wrong{background:#fdeaea;border-color:var(--bad)}
+.final-option:disabled{cursor:default;opacity:.95}
+.final-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.final-result{margin-top:10px;border-radius:10px;padding:9px 11px;font-size:.86rem;font-weight:700;background:var(--soft);border-left:4px solid var(--line)}
+.final-result.good{background:#e8f5e9;border-left-color:var(--good)}
+.final-result.warn{background:#fff6e6;border-left-color:var(--warn)}
+.final-result.bad{background:#fdeaea;border-left-color:var(--bad)}
+@media(max-width:820px){
+  .chart-grid{grid-template-columns:1fr}
+  .metric-pair{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .metric-pair{grid-template-columns:1fr}
+  .final-head{align-items:flex-start}
+  .final-score{font-size:.95rem}
+}
+
+
+/* === 60-minutersflöde och mini-projekt === */
+.prework-card{margin-top:14px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:13px 15px}
+.prework-card h3{font-size:1rem;margin-bottom:.25rem}
+.prework-card p{font-size:.8rem;color:var(--muted);margin:.2rem 0 .6rem}
+.prework-links{display:grid;gap:7px}
+.prework-link{display:flex;flex-direction:column;gap:1px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:var(--soft);font-size:.78rem}
+.prework-link:hover{border-color:var(--accent);background:#fff}
+.prework-link span{font-size:.62rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.prework-link strong{font-size:.76rem;line-height:1.3}
+.prework-missing{font-size:.78rem;color:var(--muted);border-left:3px solid var(--accent2);padding-left:8px}
+.ppt-quiz-note{background:var(--soft);border-left:5px solid var(--accent);border-radius:0 12px 12px 0;padding:10px 13px;margin:0 0 12px;font-size:.84rem}
+.ppt-quiz-note strong{color:var(--accent)}
+.mini-project{margin:26px 0;background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--soft);padding:clamp(18px,3vw,30px)}
+.mini-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+.mini-head p{max-width:75ch;margin:.2rem 0 0;color:var(--muted);font-size:.92rem}
+.mini-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;align-items:start}
+.mini-project h3{font-size:1.05rem;margin:.4rem 0 .3rem}
+.mini-project ol{margin:.2rem 0 .7rem;padding-left:1.15rem}
+.mini-project li{font-size:.86rem;margin:.35rem 0}
+.mini-deliverable{background:var(--soft);border-radius:10px;padding:8px 10px;font-size:.83rem}
+.mini-note{font-size:.76rem;color:var(--muted);margin:.7rem 0 0}
+@media(max-width:820px){.mini-grid{grid-template-columns:1fr}}
+
+
+/* === Tips, poäng, simulering och kursmål === */
+.task-link{font-size:.75rem;line-height:1.45;color:var(--muted);background:var(--soft);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:6px 8px;margin:.45rem 0 .6rem}
+.task-link b{color:var(--ink)}
+.task-score{font-size:.7rem;font-weight:900;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);white-space:nowrap}
+.task-score.part{background:#fff7dc;border-color:#e5c96b;color:#7a5b00}
+.task-score.full{background:#e8f7ec;border-color:#7cc28b;color:#176b2c}
+.pre-answer-box{margin-top:12px;background:#fff;border:1.5px dashed var(--line);border-radius:12px;padding:10px 12px}
+.pre-answer-box label{display:block;font-size:.72rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.pre-answer-box label span{font-weight:600;color:var(--muted);letter-spacing:0;text-transform:none}
+.pre-answer-box textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:.83rem;resize:vertical;background:var(--paper);color:var(--ink)}
+.hint-box{margin-top:10px;background:var(--soft);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.hint-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}
+.hint-head strong{font-size:.85rem}
+.hint-head span{font-size:.7rem;font-weight:800;color:var(--muted);white-space:nowrap}
+.hint-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.hint-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:5px 10px;font:inherit;font-size:.72rem;font-weight:800;cursor:pointer}
+.hint-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.hint-btn:disabled{opacity:.55;cursor:default}
+.hint-btn.used{background:var(--accent);border-color:var(--accent);color:#fff;opacity:1}
+.hint-texts p{margin:7px 0 0;font-size:.8rem;line-height:1.45;background:#fff;border-radius:8px;padding:7px 9px;border-left:3px solid var(--accent2)}
+.hint-texts p b{color:var(--accent)}
+.hint-foot{font-size:.7rem;color:var(--muted);margin:8px 0 0}
+.scoreboard{margin:18px 0 4px;background:var(--ink);color:#fff;border-radius:18px;padding:18px 20px;box-shadow:5px 5px 0 var(--soft)}
+.scoreboard-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.scoreboard .section-kicker{color:#c9c3b6}
+.scoreboard h3{color:#fff;margin:.15rem 0 .25rem}
+.scoreboard p{color:#d8d2c6;font-size:.8rem;max-width:70ch;margin:0}
+.score-total{text-align:right;line-height:1.05}
+.score-total b{display:block;font-size:1.65rem;color:#fff}
+.score-total span{font-size:.68rem;color:#c9c3b6;text-transform:uppercase;letter-spacing:.1em}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.score-grid>div{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:8px 9px}
+.score-grid span{display:block;font-size:1rem;font-weight:900;color:#fff}
+.score-grid small{display:block;font-size:.66rem;color:#cfc9bd;line-height:1.25;margin-top:2px}
+.score-note{font-size:.72rem;color:#cfc9bd;margin-top:9px}
+.day-score{margin:26px 0;background:var(--soft);border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 #fff;padding:clamp(18px,3vw,28px)}
+.day-score h2{margin:.2rem 0 .2rem}
+.day-score p{color:var(--muted);font-size:.85rem;max-width:75ch}
+.day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.day-grid>div{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:9px 10px}
+.day-grid span{display:block;font-size:.68rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.day-grid b{display:block;font-size:1.15rem;margin-top:2px}
+.day-total{background:var(--ink)!important;color:#fff;border-color:var(--ink)!important}
+.day-total span{color:#cfc9bd}
+.day-total b{color:#fff}
+.day-message{font-weight:700;color:var(--ink)!important}
+.sim-card .sim-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.sim-switch{display:inline-flex;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px;gap:3px}
+.sim-state{border:0;background:transparent;border-radius:999px;padding:5px 10px;font:inherit;font-size:.72rem;font-weight:800;color:var(--muted);cursor:pointer}
+.sim-state.active{background:var(--accent);color:#fff}
+.sim-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;align-items:start}
+.sim-terminal{background:#171a20;border-radius:12px;overflow:hidden;min-height:190px;border:1px solid #2b303a}
+.sim-terminal-bar{display:flex;align-items:center;gap:5px;padding:7px 10px;background:#22262e;border-bottom:1px solid #2b303a}
+.sim-terminal-bar span{width:8px;height:8px;border-radius:50%;background:#7d8490}
+.sim-terminal-bar b{margin-left:6px;font-size:.65rem;color:#aeb6c3;letter-spacing:.08em;text-transform:uppercase}
+.sim-terminal pre{margin:0;padding:12px 14px;color:#d7f5d9;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.76rem;line-height:1.65;white-space:pre-wrap;min-height:150px}
+.sim-chart-box{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 8px 6px}
+.sim-chart{display:block;width:100%;height:auto}
+.sim-bar{transition:height .35s ease,y .35s ease;fill:var(--accent)}
+.sim-bar.time{fill:#e3b341}
+.sim-bar.risk{fill:#d96a5f}
+.sim-val{font-size:12px;font-weight:900;fill:var(--ink)}
+.sim-label{font-size:10px;font-weight:800;fill:var(--muted)}
+.sim-note{font-size:.68rem;color:var(--muted);margin:2px 4px 0}
+.sim-explain{font-size:.8rem;line-height:1.45;color:var(--ink);background:var(--soft);border-left:3px solid var(--accent);padding:7px 9px;border-radius:0 8px 8px 0;margin-top:9px}
+@media(max-width:820px){.score-grid,.day-grid,.sim-grid{grid-template-columns:1fr}.score-total{text-align:left}}
+
+
+.hint-actions{margin-top:8px}
+
+
+.score-grid em{display:block;font-style:normal;font-size:.64rem;color:#cfc9bd;margin-top:2px}
+
+
+/* === Kodlabb, begrepp och radförklaring === */
+.code-lab{border:2px solid var(--ink)!important;box-shadow:5px 5px 0 var(--soft)}
+.code-lab-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin-top:10px}
+.code-step-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.code-step-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:5px 9px;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
+.code-step-btn:hover,.code-step-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.code-snippet{margin:0;background:#171a20;color:#d7f5d9;border-radius:12px;padding:12px 14px;min-height:112px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.76rem;line-height:1.55;white-space:pre-wrap}
+.code-step-explain{background:var(--soft);border-left:3px solid var(--accent2);border-radius:0 9px 9px 0;padding:7px 9px;margin-top:8px;font-size:.8rem;line-height:1.45}
+.code-step-explain strong{display:block;font-size:.76rem;color:var(--accent);margin-bottom:2px}
+.code-step-explain p{margin:0}
+.code-run-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.code-terminal{background:#171a20;border-radius:12px;overflow:hidden;border:1px solid #2b303a;min-height:190px}
+.code-terminal-bar{display:flex;align-items:center;gap:5px;padding:7px 10px;background:#22262e;border-bottom:1px solid #2b303a}
+.code-terminal-bar span{width:8px;height:8px;border-radius:50%;background:#7d8490}
+.code-terminal-bar b{margin-left:6px;font-size:.65rem;color:#aeb6c3;letter-spacing:.08em;text-transform:uppercase}
+.code-terminal pre{margin:0;padding:12px 14px;color:#d7f5d9;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.74rem;line-height:1.6;white-space:pre-wrap;max-height:230px;overflow:auto;min-height:150px}
+.code-terminal pre.error{color:#ffb4a8}
+.code-status{font-size:.74rem;color:var(--muted);margin:7px 0 0;min-height:1.2em}
+.glossary{margin:22px 0 4px;background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--soft);padding:clamp(16px,3vw,26px)}
+.glossary-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+.glossary-head h2{margin:.2rem 0 .2rem}
+.glossary-head p{color:var(--muted);font-size:.84rem;margin:0;max-width:75ch}
+.term-buttons{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.term-btn{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:6px 10px;font:inherit;font-size:.74rem;font-weight:800;cursor:pointer}
+.term-btn:hover,.term-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.term-explain{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;min-height:78px}
+.term-explain strong{display:block;color:var(--accent);margin-bottom:3px}
+.term-explain p{font-size:.84rem;line-height:1.45;margin:.2rem 0}
+.term-example{background:var(--soft);border-radius:7px;padding:5px 7px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.74rem}
+.row-explain{background:var(--soft);border-left:3px solid var(--accent);border-radius:0 9px 9px 0;padding:8px 10px;margin:8px 0;font-size:.8rem;line-height:1.45}
+.row-explain strong{display:block;margin-bottom:2px}
+.row-explain p{margin:.15rem 0}
+.lab-table tbody tr{cursor:pointer}
+.lab-table tbody tr:hover{outline:2px solid var(--accent2);outline-offset:-2px}
+@media(max-width:820px){.code-lab-grid{grid-template-columns:1fr}}
+
+
+/* === Extra material och portabilitet === */
+.prework-note{font-size:.7rem;color:var(--muted);margin:7px 0 0;line-height:1.4}
+.resources{margin:26px 0 8px;background:var(--paper);border:2px solid var(--ink);border-radius:20px;box-shadow:6px 6px 0 var(--soft);padding:clamp(16px,3vw,26px)}
+.resources-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px}
+.resources-head h2{margin:.2rem 0 .2rem}
+.resources-head p{color:var(--muted);font-size:.84rem;margin:0;max-width:75ch}
+.resource-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}
+.resource-card{display:block;text-decoration:none;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 11px;transition:transform .15s ease,border-color .15s ease}
+.resource-card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.resource-card span{display:block;font-size:.62rem;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-bottom:3px}
+.resource-card strong{display:block;font-size:.84rem;line-height:1.25}
+.resource-card small{display:block;font-size:.72rem;color:var(--muted);line-height:1.35;margin-top:3px}
+@media(max-width:820px){.resource-grid{grid-template-columns:1fr}}
+
+.wow-lab{
+  position:relative;isolation:isolate;overflow:hidden;margin:28px 0;scroll-margin-top:18px;
+  padding:clamp(18px,3.4vw,32px);
+  color:#f8f4ff;border:2px solid #0b0810;border-radius:24px;
+  background:
+    radial-gradient(900px 430px at 10% -10%,rgba(110,231,216,.23),transparent 62%),
+    radial-gradient(760px 460px at 96% 108%,rgba(192,132,252,.22),transparent 58%),
+    linear-gradient(145deg,#171320 0%,#100d17 55%,#181224 100%);
+  box-shadow:9px 9px 0 rgba(44,33,51,.22),0 24px 70px rgba(16,13,23,.24);
+}
+.wow-lab::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.55;
+  background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(180deg,#000 0%,transparent 78%);
+}
+.wow-lab::after{
+  content:"";position:absolute;width:280px;height:280px;border-radius:50%;right:-120px;top:-150px;z-index:0;pointer-events:none;
+  border:1px solid rgba(110,231,216,.35);box-shadow:0 0 0 36px rgba(110,231,216,.045),0 0 0 72px rgba(110,231,216,.025);
+}
+.wow-lab>*{position:relative;z-index:1}
+.wow-lab h2,.wow-lab h3,.wow-lab h4{color:#fff}
+.wow-lab h2{font-size:clamp(1.55rem,3vw,2.35rem);margin:.18rem 0 .45rem;max-width:24ch}
+.wow-lab p{margin:0;color:#cfc7df}
+.wow-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.wow-head>div:first-child{max-width:76ch}
+.wow-kicker{
+  display:inline-block;font-size:.7rem;font-weight:950;letter-spacing:.17em;text-transform:uppercase;
+  color:#6ee7d8;margin-bottom:3px;
+}
+.wow-badge{
+  display:grid;gap:2px;place-items:center;min-width:136px;padding:9px 13px;border-radius:14px;
+  background:linear-gradient(135deg,#6ee7d8,#c084fc);color:#12101a;font-size:.72rem;font-weight:950;
+  letter-spacing:.09em;text-transform:uppercase;text-align:center;border:1px solid rgba(255,255,255,.7);
+  box-shadow:0 10px 30px rgba(110,231,216,.18);
+}
+.wow-badge small{display:block;font-size:.58rem;letter-spacing:.03em;text-transform:none;font-weight:850;opacity:.78}
+.wow-skills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.wow-skills span{
+  display:inline-flex;align-items:center;gap:4px;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.055);border-radius:999px;padding:4px 9px;font-size:.68rem;font-weight:800;color:#ddd5ee;
+}
+.wow-skills span::before{content:"";width:5px;height:5px;border-radius:50%;background:#6ee7d8;box-shadow:0 0 8px #6ee7d8}
+.wow-mode{display:inline-flex;gap:4px;padding:4px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.24);border-radius:999px;margin:8px 0 10px}
+.wow-mode-btn{
+  border:0;border-radius:999px;background:transparent;color:#cfc7df;font:inherit;font-size:.74rem;
+  font-weight:900;letter-spacing:.04em;padding:7px 13px;cursor:pointer;transition:background .15s,color .15s,transform .15s;
+}
+.wow-mode-btn:hover{color:#fff;transform:translateY(-1px)}
+.wow-mode-btn.active{background:#6ee7d8;color:#12101a}
+.wow-prompt{
+  display:grid;gap:2px;background:rgba(255,255,255,.055);border-left:3px solid #f7b267;
+  border-radius:0 12px 12px 0;padding:10px 13px;margin:0 0 14px;font-size:.86rem;line-height:1.5;
+}
+.wow-prompt b{font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:#f7b267}
+.wow-prompt span{color:#e8e1f5}
+.wow-grid{display:grid;grid-template-columns:minmax(0,1.52fr) minmax(250px,.48fr);gap:14px;align-items:start}
+.wow-stage{
+  min-width:0;padding:10px;border:1px solid rgba(255,255,255,.14);border-radius:17px;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09);
+}
+.wow-canvas{display:block;width:100%;height:auto;border-radius:12px;background:rgba(7,5,11,.52)}
+svg.wow-canvas{overflow:visible}
+.wow-legend{display:flex;flex-wrap:wrap;gap:11px;padding:8px 3px 1px;font-size:.66rem;font-weight:800;color:#bdb3d0}
+.wow-legend span{display:inline-flex;align-items:center;gap:5px}
+.wow-legend i{width:8px;height:8px;border-radius:50%;display:inline-block;box-shadow:0 0 9px currentColor}
+.wow-side{display:grid;gap:9px;min-width:0}
+.wow-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.wow-metric{
+  min-width:0;padding:8px 9px;border-radius:12px;border:1px solid rgba(255,255,255,.13);
+  background:rgba(255,255,255,.055);
+}
+.wow-metric span{display:block;font-size:.56rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#a99fbe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wow-metric b{display:block;font-size:clamp(.86rem,1.5vw,1.12rem);font-weight:950;line-height:1.2;color:#6ee7d8;font-variant-numeric:tabular-nums;margin-top:2px}
+.wow-metric.warn b{color:#f7b267}
+.wow-metric.bad b{color:#ff7a90}
+.wow-controls{display:grid;gap:9px;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.11);background:rgba(0,0,0,.18)}
+.wow-control label{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:.66rem;font-weight:850;color:#c8bfda;letter-spacing:.01em}
+.wow-control output{font-size:.66rem;font-weight:950;color:#6ee7d8;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wow-range{
+  -webkit-appearance:none;appearance:none;width:100%;height:5px;margin:5px 0 0;border-radius:999px;
+  background:linear-gradient(90deg,#6ee7d8,#c084fc);outline:none;cursor:pointer;
+}
+.wow-range::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;
+  border:3px solid #6ee7d8;box-shadow:0 0 0 4px rgba(110,231,216,.14),0 2px 8px rgba(0,0,0,.35);cursor:grab;
+}
+.wow-range::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid #6ee7d8;box-shadow:0 0 0 4px rgba(110,231,216,.14);cursor:grab}
+.wow-switch{display:flex!important;justify-content:flex-start!important;align-items:center;gap:8px;cursor:pointer;font-size:.66rem;font-weight:800;color:#c8bfda}
+.wow-switch input{position:absolute;opacity:0;width:1px;height:1px}
+.wow-track{position:relative;flex:0 0 30px;width:30px;height:16px;border-radius:999px;background:#3b3348;border:1px solid rgba(255,255,255,.18);transition:background .15s}
+.wow-track::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:transform .15s}
+.wow-switch input:checked+.wow-track{background:#6ee7d8}
+.wow-switch input:checked+.wow-track::after{transform:translateX(14px);background:#12101a}
+.wow-select{
+  width:100%;margin-top:4px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:#211a2c;
+  color:#f8f4ff;padding:7px 9px;font:inherit;font-size:.72rem;font-weight:750;cursor:pointer;
+}
+.wow-insight{
+  border-radius:12px;padding:9px 11px;font-size:.71rem;line-height:1.5;color:#ddd5ee;
+  background:rgba(110,231,216,.075);border-left:3px solid #6ee7d8;
+}
+.wow-insight.bad{background:rgba(255,122,144,.09);border-left-color:#ff7a90}
+.wow-insight.warn{background:rgba(247,178,103,.09);border-left-color:#f7b267}
+.wow-random{
+  border:1px solid rgba(255,255,255,.22);border-radius:10px;background:rgba(255,255,255,.06);
+  color:#f8f4ff;padding:8px 10px;font:inherit;font-size:.69rem;font-weight:900;letter-spacing:.03em;cursor:pointer;
+  transition:background .15s,transform .15s;
+}
+.wow-random:hover{background:rgba(255,255,255,.13);transform:translateY(-1px)}
+.wow-foot{
+  display:grid;grid-template-columns:1.05fr 1.25fr .9fr;gap:8px;margin-top:13px;
+  padding-top:12px;border-top:1px solid rgba(255,255,255,.13);
+}
+.wow-foot span{font-size:.66rem;line-height:1.45;color:#bdb3d0}
+.wow-foot b{display:block;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:#6ee7d8;margin-bottom:1px}
+.wow-foot span:last-child b{color:#c084fc}
+.wow-jump{font-weight:900;text-decoration:none;border-bottom:1.5px solid currentColor;white-space:nowrap}
+.wow-jump:hover{color:var(--accent2)}
+.wow-lab .wow-node text,.wow-lab .wow-edge-label{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.wow-node rect{transition:fill .2s,stroke .2s}
+.wow-edge{fill:none;stroke:rgba(255,255,255,.22);stroke-width:1.6}
+.wow-edge.hot{stroke:rgba(110,231,216,.7);stroke-dasharray:5 5;animation:wowDash 1.1s linear infinite}
+.wow-edge.broken{stroke:rgba(255,122,144,.8);stroke-dasharray:4 6;animation:wowDash .8s linear infinite}
+@keyframes wowDash{to{stroke-dashoffset:-22}}
+.wow-packet{fill:#c084fc;filter:drop-shadow(0 0 5px #c084fc)}
+.wow-node-label{fill:#f8f4ff;font-size:11px;font-weight:850}
+.wow-node-sub{fill:#bdb3d0;font-size:9px;font-weight:750}
+.wow-node-time{fill:#6ee7d8;font-size:12px;font-weight:950}
+.wow-lab .wow-axis{fill:#9f94b4;font-size:9px;font-weight:750}
+@media (max-width:900px){
+  .wow-grid{grid-template-columns:1fr}
+  .wow-side{grid-template-columns:1fr 1fr;align-items:start}
+  .wow-metrics{grid-column:1/-1}
+  .wow-foot{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .wow-lab{padding:15px;border-radius:18px;box-shadow:5px 5px 0 rgba(44,33,51,.2)}
+  .wow-head{display:block}
+  .wow-badge{display:inline-grid;margin-top:10px}
+  .wow-side{grid-template-columns:1fr}
+  .wow-metrics{grid-template-columns:1fr 1fr}
+  .wow-metric:last-child{grid-column:1/-1}
+  .wow-lab h2{max-width:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .wow-lab *{animation:none!important;transition:none!important}
+}
+
+/* === Svitnavigation: var i de tolv passen man är === */
+.series-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:0 0 18px;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+.series-link{display:flex;flex-direction:column;gap:2px;min-width:0;color:var(--ink);text-decoration:none}
+.series-link span{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.series-link strong{font-size:.85rem;font-weight:600;line-height:1.25}
+.series-link.prev{text-align:left}
+.series-link.next{text-align:right}
+.series-link:hover strong{text-decoration:underline}
+.series-link.is-off{opacity:.45}
+.series-link.is-off strong{font-weight:500}
+.series-rail{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:232px}
+.series-dot{width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--muted);font-size:.7rem;font-weight:700;text-decoration:none}
+.series-dot:hover{border-color:var(--accent);color:var(--accent)}
+.series-dot.current{border-color:var(--accent);background:var(--accent);color:#fff}
+@media(max-width:680px){.series-nav{grid-template-columns:1fr}.series-link.next{text-align:left}.series-rail{justify-content:flex-start;max-width:none}}
+</style>
+
+</head>
+<body data-timer-minutes="60">
+<div class="page">
+
+    <header class="hero">
+      <div class="hero-top">
+        <div class="kicker">Pass 10 av 12</div>
+      </div>
+      <h1>Någon annan ska kunna köra den</h1>
+      <p class="lead">Inkrementell analys, PowerShell och Power BI – från notebook till ett flöde som går att lita på.</p>
+      <div class="meta">
+        <span class="chip"><b>Pass</b> 60 min</span>
+        <span class="chip"><b>Mapp</b> 9,10. ML för nätverkssäkerhet analys av stora datamängder</span>
+      </div>
+      <nav class="series-nav" aria-label="Svitens tolv pass">
+        <a class="series-link prev" href="./workshop-09-ml-lokal-miljo.html"><span>Bygger vidare på pass 9</span><strong>Från SQL Server till första modellen</strong></a>
+        <div class="series-rail"><a class="series-dot" href="../../1.%20DevOps%20&amp;%20Intro%20Databricks/3.%20HTML/workshop-01-devops-databricks.html" title="Pass 1 · Från pappersflygplan till PySpark">1</a><a class="series-dot" href="../../2,3.%20Branschfördjupning%20–%20med%20Multi-Agent%20System/3.%20HTML/workshop-02-multi-agent-del1.html" title="Pass 2 · Två agenter blir en kedja">2</a><a class="series-dot" href="../../2,3.%20Branschfördjupning%20–%20med%20Multi-Agent%20System/3.%20HTML/workshop-03-multi-agent-del2.html" title="Pass 3 · Fyra agenter, en pipeline">3</a><a class="series-dot" href="../../4,5.%20Insider%20Threat%20Detection/3.%20HTML/workshop-04-enterprise-stack-del1.html" title="Pass 4 · Rent data först, modell sedan">4</a><a class="series-dot" href="../../4,5.%20Insider%20Threat%20Detection/3.%20HTML/workshop-05-enterprise-stack-del2.html" title="Pass 5 · Två modeller, ett ärligt mått">5</a><a class="series-dot" href="../../6.%20AI%20Agent%20Engineering/3.%20HTML/workshop-06-ai-agent-engineering.html" title="Pass 6 · Skydden runt agenten">6</a><a class="series-dot" href="../../7.%20AI%20Agent%20Engineering/3.%20HTML/workshop-07-ai-support-agent.html" title="Pass 7 · Svar med källor, inte gissningar">7</a><a class="series-dot" href="../../8.%20Git-workshop/3.%20HTML/workshop-08-git-code-review.html" title="Pass 8 · Ingen kod till main utan en kollega">8</a><a class="series-dot" href="./workshop-09-ml-lokal-miljo.html" title="Pass 9 · Från SQL Server till första modellen">9</a><span class="series-dot current" aria-current="page">10</span><a class="series-dot" href="../../11,12.%20EndpointSecurityML/3.%20HTML/workshop-11-mlops-rest-api.html" title="Pass 11 · Från notebook till tjänst">11</a><a class="series-dot" href="../../11,12.%20EndpointSecurityML/3.%20HTML/workshop-12-containers-airflow.html" title="Pass 12 · Sätt systemet på autopilot – och starta projektet">12</a></div>
+        <a class="series-link next" href="../../11,12.%20EndpointSecurityML/3.%20HTML/workshop-11-mlops-rest-api.html"><span>Nästa pass · 11</span><strong>Från notebook till tjänst</strong></a>
+      </nav>
+      <div class="question"><span>Dagens fråga</span><strong>Hur gör vi analysen repeterbar, portabel och begriplig för någon annan?</strong></div>
+      <div class="goal-strip">
+        <div><span>Kursmål</span><strong>Kursmål 3 · Kursmål 6 · Kursmål 7</strong></div>
+        <div><span>Pythonfokus</span><strong>Inkrementell databehandling, portabla sökvägar och databasskrivning</strong></div>
+        <div><span>Yrkesroll</span><strong>Automatisera en analys som kan köras av någon annan utan att du sitter vid datorn.</strong></div>
+      </div>
+      <div class="timer-bar">
+        <div><span class="timer-label">HTML-pass</span><div class="timer-display" id="timerDisplay">60:00</div></div>
+        <div class="timer-actions">
+          <button type="button" data-timer-start>Starta</button>
+          <button type="button" data-timer-reset>Nollställ</button>
+          <button type="button" data-timer-set="60">60 min</button>
+        </div>
+      </div>
+    </header>
+    
+<main>
+
+    <section class="course-card">
+      <span class="section-kicker">Koppling till kursplanen</span>
+      <h2>Därför ligger just detta pass här</h2>
+      <div class="course-grid">
+        <div class="quote-box">
+          <blockquote>Säkerhetsanalys & ML (Del 2): Automatiserad Pipeline & Power BI … Koppla ML-modellen till SQL Server i VS Code, automatisera pipeline via PowerShell (run_ml_analysis.ps1) samt bygga visuell instrumentpanel i Power BI.</blockquote>
+          <cite>Kursplan · block 3</cite>
+        </div>
+        <div class="outcomes"><h3>Efter idag kan du</h3><ul><li>Förklara varför inkrementell behandling behövs och hur IsProcessed används.</li><li>Göra ett skript portabelt med relativa sökvägar.</li><li>Verifiera ett automatiserat flöde och koppla resultatet till en rapportvy.</li></ul></div>
+      </div>
+      <p class="why"><strong>Varför det spelar roll:</strong> En modell som bara fungerar i din notebook är en demo. Här lär du dig göra den körbar för någon annan: bara nya rader, tydliga kontroller och en rapport som visar resultatet.</p>
+    </section>
+    
+
+    <section class="plan">
+      <div class="section-head"><div><span class="section-kicker">Så används passet</span><h2>HTML-passet i 60 minuter</h2></div><span class="time-total">video och PPT före · mini projekt efter</span></div>
+      <div class="plan-grid">
+        <div class="timeline">
+          <div class="time-row"><time>Före</time><div><strong>Video</strong><p>Se videon i mappen. Den ger dig ämnets sammanhang och begrepp.</p></div></div>
+          <div class="time-row"><time>Före</time><div><strong>PowerPoint + quiz</strong><p>Gå igenom presentationen. Gör quizet i individfliken direkt efteråt.</p></div></div>
+          <div class="time-row"><time>HTML</time><div><strong>HTML-experiment · 60 min</strong><p>Reglage, klickbar bild, tabell och slutquiz. Läs kort – testa först.</p></div></div>
+          <div class="time-row"><time>Efter</time><div><strong>Mini projekt</strong><p>Genomför det passets mini projektet längst ned på sidan.</p></div></div>
+        </div>
+        <aside>
+          
+    <div class="prework-card">
+      <h3>Före HTML-passet</h3>
+      <p>Se videon och gå igenom PowerPointen. Gör sedan quizet i individfliken innan du går in i experimenten.</p>
+      <div class="prework-links"><a class="prework-link" href="../1.%20Multimedia/AI-driven_hotdetektor.mp4" target="_blank" rel="noopener"><span>Video</span><strong>AI-driven_hotdetektor.mp4</strong></a><a class="prework-link" href="../2.%20PowerPoint%20och%20PDF/Maskininl%C3%A4rning%20f%C3%B6r%20n%C3%A4tverkss%C3%A4kerhet%20analys%20av%20stora%20datam%C3%A4ngder.pptx" target="_blank" rel="noopener"><span>PowerPoint</span><strong>Maskininlärning för nätverkssäkerhet analys av stora datamängder.pptx</strong></a></div>
+      <p class="prework-note">Länkarna är relativa och fungerar så länge mapparna 1. Multimedia och 2. PowerPoint och PDF ligger kvar intill 3. HTML. Vissa webbläsare kan fråga innan de öppnar en lokal fil – öppna den då direkt från mappen.</p>
+    </div>
+    
+          <div class="python-card">
+            <span class="tag">Python-koppling</span>
+            <h3>Bara det som är nytt</h3>
+            <p>En pipeline ska inte analysera om allt varje gång. Den hämtar oprocessade rader, sparar resultatet och markerar dem som behandlade. Då blir körningen både snabbare och mindre dubblettbenägen.</p>
+            <pre><code class="language-python">new_rows = pd.read_sql(
+    <span class="s">&quot;SELECT * FROM NetworkTrafficLogs WHERE IsProcessed = 0&quot;</span>,
+    conn,
+)
+
+<span class="k">for</span> _, row <span class="k">in</span> new_rows.iterrows():
+    score = model.predict_proba([row[FEATURES]])[<span class="n">0</span>][<span class="n">1</span>]
+    save_detection(conn, row[<span class="s">&quot;LogID&quot;</span>], score, threshold=<span class="n">0.7</span>)
+
+mark_processed(conn, new_rows[<span class="s">&quot;LogID&quot;</span>].tolist())
+print(f<span class="s">&quot;Analyserade {len(new_rows)} nya rader&quot;</span>)</code></pre>
+            <ul><li>WHERE IsProcessed = 0 gör att bara nya rader hämtas.</li><li>predict_proba ger en sannolikhet som kan jämföras med ett tröskelvärde.</li><li>save_detection skriver resultatet till ThreatDetections – inte tillbaka till rådata.</li><li>mark_processed gör nästa körning idempotent: samma rader analyseras inte igen.</li></ul>
+            <p><strong>Ta med dig:</strong> En pipeline ska vara idempotent och portabel. Kör den två gånger utan ny data ska resultatet bli ”inga nya rader” – inte dubbletter.</p>
+          </div>
+          <div class="material-card"><h3>Dagens material</h3><ul><li>4. Praktiskt projekt/SQL2025/network_model/analyze_network_traffic.py – läser nya rader och predikterar.</li><li>4. Praktiskt projekt/SQL2025/network_model/run_ml_analysis.ps1 – sex kontroller och start.</li><li>4. Praktiskt projekt/SQL2025/network_model/requirements.txt – exakta paketversioner.</li><li>4. Praktiskt projekt/SQL2025/NetworkSecurityReportPowerBI.pbix – färdig rapport.</li><li>README.md – steg 8–10 och felsökning.</li></ul></div>
+        </aside>
+      </div>
+      <div class="callout-grid">
+        <div class="callout warn"><span>Vanligt misstag</span><p>Att köra om all data varje gång och skapa dubbletter. Det gör rapporten felaktig och kostar onödig tid. Använd IsProcessed eller en tydlig vattenstämpel.</p></div>
+        <div class="callout safe"><span>Säkert arbetssätt</span><p>Databasuppgifter ska inte hårdkodas. Använd en separat konfiguration eller miljövariabel, ge skriptet minsta möjliga behörighet och logga inte känsliga rader.</p></div>
+      </div>
+    </section>
+    
+
+    <nav class="tabs" role="tablist" aria-label="Workshopens tre delar">
+      <button class="tab active" id="tab-ind" role="tab" aria-selected="true" aria-controls="panel-ind" data-tab="panel-ind">01 · Individuellt arbete</button>
+      <button class="tab" id="tab-grp" role="tab" aria-selected="false" aria-controls="panel-grp" data-tab="panel-grp">02 · Grupparbete</button>
+      <button class="tab" id="tab-facit" role="tab" aria-selected="false" aria-controls="panel-facit" data-tab="panel-facit">03 · Facit</button>
+    </nav>
+    
+
+    <section id="panel-ind" class="panel active" role="tabpanel" aria-labelledby="tab-ind">
+      <div class="panel-head"><div><span class="section-kicker">Flik 1</span><h2>Individuellt arbete</h2><p>Kör pipelinen själv och verifiera resultatet i SQL. Det är först när du kör två gånger som du ser om flödet är idempotent.</p></div><span class="panel-time">ca 38 min</span></div>
+      <div class="ppt-quiz-note"><strong>Efter PowerPoint:</strong> börja med quizet nedan. Det kontrollerar begreppen innan du går in i experimenten. Sedan följer matchning, beslut och labb.</div>
+      <div class="task-grid">
+        <article class="task" data-task="1" data-task-type="quiz">
+          <div class="task-top"><span class="num">01</span><span class="time-pill">4 min</span><span class="task-score" data-task-score>0/3</span></div>
+          <h3>Pipeline utan dubbletter</h3><p>Tre frågor om inkrementell behandling och portabilitet.</p>
+<p class="task-link"><b>Kursmål:</b> 3 · 6 · 7 · <b>Python:</b> Inkrementell databehandling, portabla sökvägar och databasskrivning · <b>Pass:</b> Någon annan ska kunna köra den</p><div class="quiz-question"><div class="q-head"><span class="q-num">Fråga 1</span><span class="q-hint">Välj ett svar</span></div><p class="q-text">Vad är syftet med inkrementell behandling?</p><div class="options"><button type="button" class="option" data-correct="1" data-why="Rätt. Det sparar tid och förhindrar dubbletter."><span class="option-mark">@</span><span>Att bara bearbeta nya eller oanalyserade rader.</span></button><button type="button" class="option" data-correct="0" data-why="Nej. Det är motsatsen till inkrementellt."><span class="option-mark">A</span><span>Att radera all data och börja om.</span></button><button type="button" class="option" data-correct="0" data-why="Nej. Träning och analys är separata steg."><span class="option-mark">B</span><span>Att träna om modellen varje gång.</span></button></div><div class="feedback" hidden aria-live="polite"></div></div><div class="quiz-question"><div class="q-head"><span class="q-num">Fråga 2</span><span class="q-hint">Välj ett svar</span></div><p class="q-text">Varför använda relativa sökvägar i skriptet?</p><div class="options"><button type="button" class="option" data-correct="1" data-why="Rätt. Portabilitet är en förutsättning för att andra ska kunna köra."><span class="option-mark">@</span><span>Så att det fungerar oavsett var projektet ligger på datorn.</span></button><button type="button" class="option" data-correct="0" data-why="Nej. Längden är irrelevant."><span class="option-mark">A</span><span>För att filen ska bli kortare.</span></button><button type="button" class="option" data-correct="0" data-why="Nej. Det handlar om var filen hittas, inte hastighet."><span class="option-mark">B</span><span>För att PowerShell ska starta snabbare.</span></button></div><div class="feedback" hidden aria-live="polite"></div></div><div class="quiz-question"><div class="q-head"><span class="q-num">Fråga 3</span><span class="q-hint">Välj ett svar</span></div><p class="q-text">Vad ska hända när du kör pipelinen igen utan ny data?</p><div class="options"><button type="button" class="option" data-correct="1" data-why="Rätt. Det visar att flödet är idempotent."><span class="option-mark">@</span><span>Den ska rapportera att inga nya rader finns – utan att skapa dubbletter.</span></button><button type="button" class="option" data-correct="0" data-why="Nej. Då är filtret eller markeringen fel."><span class="option-mark">A</span><span>Den ska analysera om alla 20 rader.</span></button><button type="button" class="option" data-correct="0" data-why="Nej. Tomma indata ska hanteras kontrollerat."><span class="option-mark">B</span><span>Den ska krascha.</span></button></div><div class="feedback" hidden aria-live="polite"></div></div>
+        
+        <div class="pre-answer-box">
+          <label>Ditt preliminära svar <span>innan du öppnar tipsen</span></label>
+          <textarea rows="2" aria-label="Ditt preliminära svar" placeholder="Skriv din första tanke här. Fullt svar finns i fliken Facit."></textarea>
+        </div>
+        <div class="hint-box" data-hint-box>
+          <div class="hint-head"><strong>Tips – öppna en i taget</strong><span data-hint-count>0 av 3 tips</span></div>
+          <div class="hint-buttons"><button type="button" class="hint-btn" data-hint-btn="0">Tips 1</button><button type="button" class="hint-btn" data-hint-btn="1">Tips 2</button><button type="button" class="hint-btn" data-hint-btn="2">Tips 3</button></div>
+          <div class="hint-texts"><p data-hint-text="0" hidden><b>Tips 1:</b> Fråga 1: Det sparar tid och förhindrar dubbletter.</p><p data-hint-text="1" hidden><b>Tips 2:</b> Fråga 2: Portabilitet är en förutsättning för att andra ska kunna köra.</p><p data-hint-text="2" hidden><b>Tips 3:</b> Fråga 3: Det visar att flödet är idempotent.</p></div>
+          <div class="hint-actions"><button type="button" class="btn ghost small" data-task-reset>Gör om uppgiften</button></div>
+          <p class="hint-foot">3 p utan tips · 2 p efter 1 tips · 1 p efter 2–3 tips. Fullt svar finns i fliken <b>Facit</b>.</p>
+        </div>
+    </article>
+        <article class="task" data-task="2" data-task-type="match">
+          <div class="task-top"><span class="num">02</span><span class="time-pill">3 min</span><span class="task-score" data-task-score>0/3</span></div>
+          <h3>Flödets tre nyckelord</h3><p>Matcha IsProcessed, __file__ och rapportvyn.</p>
+<p class="task-link"><b>Kursmål:</b> 3 · 6 · 7 · <b>Python:</b> Inkrementell databehandling, portabla sökvägar och databasskrivning · <b>Pass:</b> Någon annan ska kunna köra den</p><div class="match-box"><p>Matcha begreppen med rätt roll i pipelinen.</p><div class="match-row"><label>IsProcessed</label><select data-term="IsProcessed" data-answer="Flagga som visar om en rad redan analyserats"><option value="">Välj förklaring…</option><option value="Flagga som visar om en rad redan analyserats">Flagga som visar om en rad redan analyserats</option><option value="En Power BI-färg">En Power BI-färg</option><option value="En API-nyckel">En API-nyckel</option></select></div><div class="match-row"><label>__file__</label><select data-term="__file__" data-answer="Skriptets egen plats, används för portabla sökvägar"><option value="">Välj förklaring…</option><option value="Skriptets egen plats, används för portabla sökvägar">Skriptets egen plats, används för portabla sökvägar</option><option value="En SQL-tabell">En SQL-tabell</option><option value="En modelltyp">En modelltyp</option></select></div><div class="match-row"><label>vw_TrafficAnalysis</label><select data-term="vw_TrafficAnalysis" data-answer="Vy som sammanställer data för rapporten"><option value="">Välj förklaring…</option><option value="Vy som sammanställer data för rapporten">Vy som sammanställer data för rapporten</option><option value="Rådata före analys">Rådata före analys</option><option value="En pytest-regel">En pytest-regel</option></select></div><div class="mini-actions"><button type="button" class="btn primary small" data-check-match>Kontrollera</button><button type="button" class="btn ghost small" data-reset-match>Börja om</button></div><div class="feedback" hidden aria-live="polite"></div></div>
+        
+        <div class="pre-answer-box">
+          <label>Ditt preliminära svar <span>innan du öppnar tipsen</span></label>
+          <textarea rows="2" aria-label="Ditt preliminära svar" placeholder="Skriv din första tanke här. Fullt svar finns i fliken Facit."></textarea>
+        </div>
+        <div class="hint-box" data-hint-box>
+          <div class="hint-head"><strong>Tips – öppna en i taget</strong><span data-hint-count>0 av 3 tips</span></div>
+          <div class="hint-buttons"><button type="button" class="hint-btn" data-hint-btn="0">Tips 1</button><button type="button" class="hint-btn" data-hint-btn="1">Tips 2</button><button type="button" class="hint-btn" data-hint-btn="2">Tips 3</button></div>
+          <div class="hint-texts"><p data-hint-text="0" hidden><b>Tips 1:</b> IsProcessed: vilken förklaring beskriver vad begreppet gör i flödet?</p><p data-hint-text="1" hidden><b>Tips 2:</b> __file__: jämför med de förklaringar som återstår.</p><p data-hint-text="2" hidden><b>Tips 3:</b> vw_TrafficAnalysis: kontrollera att alla tre begrepp har varsin förklaring.</p></div>
+          <div class="hint-actions"><button type="button" class="btn ghost small" data-task-reset>Gör om uppgiften</button></div>
+          <p class="hint-foot">3 p utan tips · 2 p efter 1 tips · 1 p efter 2–3 tips. Fullt svar finns i fliken <b>Facit</b>.</p>
+        </div>
+    </article>
+        <article class="task wide" data-task="3" data-task-type="decision">
+          <div class="task-top"><span class="num">03</span><span class="time-pill">5 min</span><span class="task-score" data-task-score>0/3</span></div>
+          <h3>Drift och felsökning</h3><p>Välj det alternativ som gör flödet körbart för någon annan.</p>
+<p class="task-link"><b>Kursmål:</b> 3 · 6 · 7 · <b>Python:</b> Inkrementell databehandling, portabla sökvägar och databasskrivning · <b>Pass:</b> Någon annan ska kunna köra den</p><div class="decision-card"><p><span class="q-num">Läge 1</span> Skriptet fungerar på din dator men inte hos en kollega. Vad kontrollerar du först?</p><div class="decision-options"><button type="button" class="decision-option" data-correct="1" data-why="Rätt. Portabilitet är det vanligaste problemet när något fungerar lokalt.">Om sökvägar och servernamn är hårdkodade.</button><button type="button" class="decision-option" data-correct="0" data-why="Nej. Det påverkar inte Python.">Om kollegan har samma skrivbordsbild.</button><button type="button" class="decision-option" data-correct="0" data-why="Nej. Modellen är en fil, inte ett språk.">Om modellen är tränad i ett annat språk.</button></div><div class="feedback" hidden aria-live="polite"></div></div><div class="decision-card"><p><span class="q-num">Läge 2</span> Pipelinen har kört två gånger och rapporten visar dubbletter. Vad är sannolikt fel?</p><div class="decision-options"><button type="button" class="decision-option" data-correct="1" data-why="Rätt. Idempotensen har brustit.">Rader markeras inte som behandlade, eller filtret används inte.</button><button type="button" class="decision-option" data-correct="0" data-why="Nej. Dubbletterna finns sannolikt i datan.">Power BI är trasigt.</button><button type="button" class="decision-option" data-correct="0" data-why="Nej. Det påverkar inte radantalet.">Modellen har för många träd.</button></div><div class="feedback" hidden aria-live="polite"></div></div><div class="decision-card"><p><span class="q-num">Läge 3</span> Ett PowerShell-skript stoppas av exekveringspolicyn. Vad är rimligast?</p><div class="decision-options"><button type="button" class="decision-option" data-correct="1" data-why="Rätt. Det är en kontrollerad lösning för övningen.">Kör med ett tillfälligt Bypass för just den processen och förklara varför.</button><button type="button" class="decision-option" data-correct="0" data-why="Nej. Det är för bred förändring.">Stäng av all säkerhet permanent.</button><button type="button" class="decision-option" data-correct="0" data-why="Nej. Det löser inte policyfrågan.">Byter operativsystem.</button></div><div class="feedback" hidden aria-live="polite"></div></div>
+        
+        <div class="pre-answer-box">
+          <label>Ditt preliminära svar <span>innan du öppnar tipsen</span></label>
+          <textarea rows="2" aria-label="Ditt preliminära svar" placeholder="Skriv din första tanke här. Fullt svar finns i fliken Facit."></textarea>
+        </div>
+        <div class="hint-box" data-hint-box>
+          <div class="hint-head"><strong>Tips – öppna en i taget</strong><span data-hint-count>0 av 3 tips</span></div>
+          <div class="hint-buttons"><button type="button" class="hint-btn" data-hint-btn="0">Tips 1</button><button type="button" class="hint-btn" data-hint-btn="1">Tips 2</button><button type="button" class="hint-btn" data-hint-btn="2">Tips 3</button></div>
+          <div class="hint-texts"><p data-hint-text="0" hidden><b>Tips 1:</b> Läge 1: Portabilitet är det vanligaste problemet när något fungerar lokalt.</p><p data-hint-text="1" hidden><b>Tips 2:</b> Läge 2: Idempotensen har brustit.</p><p data-hint-text="2" hidden><b>Tips 3:</b> Läge 3: Det är en kontrollerad lösning för övningen.</p></div>
+          <div class="hint-actions"><button type="button" class="btn ghost small" data-task-reset>Gör om uppgiften</button></div>
+          <p class="hint-foot">3 p utan tips · 2 p efter 1 tips · 1 p efter 2–3 tips. Fullt svar finns i fliken <b>Facit</b>.</p>
+        </div>
+    </article>
+      </div>
+      
+      
+    
+    <section class="scoreboard" id="poang" aria-labelledby="scoreTitle">
+      <div class="scoreboard-head">
+        <div><span class="section-kicker">Poäng</span><h3 id="scoreTitle">Dina poäng efter tipsen</h3>
+        <p>Du får poäng först när hela uppgiften är rätt. 3 p utan tips, 2 p efter ett tips och 1 p efter två eller tre tips. Poängen är ett stöd – inte ett betyg.</p></div>
+        <div class="score-total"><b data-score-total>0 / 9</b><span>uppgifter</span></div>
+      </div>
+      <div class="score-grid"><div><span data-score-task="1">0 / 3</span><small>Pipeline utan dubbletter</small><em class="score-hints" data-score-hints="1">0 tips</em></div><div><span data-score-task="2">0 / 3</span><small>Flödets tre nyckelord</small><em class="score-hints" data-score-hints="2">0 tips</em></div><div><span data-score-task="3">0 / 3</span><small>Drift och felsökning</small><em class="score-hints" data-score-hints="3">0 tips</em></div></div>
+      <p class="score-note" data-score-note>0 av 3 uppgifter lösta · 0 tips använda totalt.</p>
+    </section>
+    
+    <section class="lab-zone" aria-labelledby="labTitle">
+      <div class="lab-banner">
+        <span class="lab-badge">Experimentverkstad</span>
+        <h2 id="labTitle">Läs kort – testa först</h2>
+        <p>Dra i tröskelvärdet och se hur missade hot och falsklarm byter plats. Ändra sedan en kontroll i tabellen. <a class="quiz-jump" href="#slutquiz">Hoppa till slutquizet ↓</a> · <a class="quiz-jump wow-jump" href="#ai-verkstad">AI-verkstad ↓</a></p>
+      </div>
+
+      
+      <article class="lab-card code-lab" data-code-lab>
+        <div class="lab-card-head"><span class="lab-step">Experiment 0 · kod</span><span class="time-pill">6 min</span></div>
+        <h3>Kör den inkrementella pipelinen</h3>
+        <p>Se hur bara nya rader hämtas. Testa sedan vad som händer när idempotensen brister.</p>
+        <div class="code-lab-grid">
+          <div>
+            <div class="code-step-buttons"><button type="button" class="code-step-btn active" data-code-step="0">1. Hämta nya rader</button><button type="button" class="code-step-btn" data-code-step="1">2. Poängsätt</button><button type="button" class="code-step-btn" data-code-step="2">3. Spara och markera</button></div>
+            <pre class="code-snippet"><code data-code-snippet></code></pre>
+            <div class="code-step-explain" data-code-step-explain></div>
+          </div>
+          <div>
+            <div class="code-run-buttons">
+              <button type="button" class="btn primary small" data-code-run>Kör koden</button>
+              <button type="button" class="btn ghost small" data-code-error>Visa vanligt fel</button>
+              <button type="button" class="btn primary small" data-code-fix hidden>Visa rätt output</button>
+            </div>
+            <div class="code-terminal"><div class="code-terminal-bar"><span></span><span></span><span></span><b>output</b></div><pre data-code-output aria-live="polite"></pre></div>
+            <p class="code-status" data-code-status>Välj ett steg eller kör koden.</p>
+          </div>
+        </div>
+        <details class="lab-explain"><summary>Vad ska du titta efter?</summary><p><strong>Vanligt fel:</strong> Samma rad sparas två gånger. Idempotensen har brustit.</p><p><strong>Rätt output:</strong> Markera raderna som processed efter att de sparats. Nästa körning ska hitta 0 nya.</p></details>
+        <script type="application/json" data-code-data>{"title": "Kör den inkrementella pipelinen", "intro": "Se hur bara nya rader hämtas. Testa sedan vad som händer när idempotensen brister.", "steps": [{"label": "1. Hämta nya rader", "code": "new_rows = pd.read_sql(\"SELECT * FROM NetworkTrafficLogs WHERE IsProcessed = 0\", conn)", "explain": "WHERE IsProcessed=0 gör att bara nya rader hämtas."}, {"label": "2. Poängsätt", "code": "score = model.predict_proba([row[FEATURES]])[0][1]", "explain": "predict_proba ger en sannolikhet mellan 0 och 1."}, {"label": "3. Spara och markera", "code": "save_detection(conn, row[\"LogID\"], score, threshold=0.7)\nmark_processed(conn, new_rows[\"LogID\"].tolist())", "explain": "Resultatet sparas och raderna markeras som behandlade."}], "success": ["Analyserade 20 nya rader"], "error": ["duplicate key value violates unique constraint", "  Samma rad försökte sparas två gånger"], "fix": ["Analyserade 0 nya rader"], "errorExplain": "Samma rad sparas två gånger. Idempotensen har brustit.", "fixExplain": "Markera raderna som processed efter att de sparats. Nästa körning ska hitta 0 nya."}</script>
+      </article>
+    <article class="lab-card">
+        <div class="lab-card-head"><span class="lab-step">Experiment 1 · reglage</span><span class="time-pill">4 min</span></div>
+        <h3>Avvägningen vid larm</h3>
+        <p>Dra i reglaget. Grön linje är missade hot, röd linje är falsklarm.</p>
+        <div class="chart-grid">
+          <div class="chart-box">
+            <svg class="lab-chart" viewBox="0 0 560 280" role="img" aria-label="Linjediagram över missade hot och falsklarm vid olika tröskelvärden">
+              <title>Linjediagram över missade hot och falsklarm vid olika tröskelvärden</title>
+              <g data-chart-grid></g>
+              <g data-chart-a></g>
+              <g data-chart-b></g>
+              <g data-chart-current></g>
+            </svg>
+            <div class="legend"><span><i></i>Missade hot</span><span class="b"><i></i>Falsklarm</span></div>
+            <div class="table-hint" data-chart-xlabel>Tröskelvärde</div>
+          </div>
+          <div class="slider-box">
+            <label for="labSlider">Tröskelvärde för larm <output data-slider-value>0.7</output></label>
+            <input id="labSlider" type="range" min="0" max="1" step="0.05" value="0.7" data-lab-slider>
+            <div class="metric-pair">
+              <div class="metric a"><span>Missade hot</span><strong data-metric-a>–</strong></div>
+              <div class="metric b"><span>Falsklarm</span><strong data-metric-b>–</strong></div>
+            </div>
+            <div class="insight" data-slider-insight aria-live="polite">Dra i reglaget…</div>
+          </div>
+        </div>
+        <details class="lab-explain">
+          <summary>Så funkar experimentet – öppna efter att du testat</summary>
+          <p>Pipelinen använder ett tröskelvärde för att göra om en sannolikhet till ett larm. Tröskeln är inte bara teknisk – den påverkar analytikerns arbetsbelastning och risken för missade hot. Kurvorna är en förenklad modell.</p>
+          <p><strong>Testa:</strong> Testa 0,3, 0,7 och 0,9. Vilken tröskel skulle du välja för en första pilot? Varför måste valet dokumenteras?</p>
+        </details>
+      </article>
+    
+
+      <article class="lab-card">
+        <div class="lab-card-head"><span class="lab-step">Experiment 2 · bild</span><span class="time-pill">3 min</span></div>
+        <h3>Pipeline utan dubbletter</h3>
+        <p>Klicka på stegen. Nyckeln är att bara nya rader bearbetas – och att resultatet syns i rapporten.</p>
+        <div class="diagram-wrap"><svg class="flow-svg" viewBox="0 0 760 190" role="img" aria-label="Klickbart flödesschema"><defs><marker id="labArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path></marker></defs><g class="diagram-node" data-node="0" tabindex="0" role="button" aria-label="Nya rader"><rect x="20" y="50" width="164" height="76" rx="13"></rect><text text-anchor="middle"><tspan x="102" y="88">Nya rader</tspan></text><text class="hint" text-anchor="middle" x="102" y="112">klicka</text></g><line class="arrow" x1="186" y1="88" x2="203" y2="88" marker-end="url(#labArrow)"></line><g class="diagram-node" data-node="1" tabindex="0" role="button" aria-label="Modell"><rect x="207" y="50" width="164" height="76" rx="13"></rect><text text-anchor="middle"><tspan x="289" y="88">Modell</tspan></text><text class="hint" text-anchor="middle" x="289" y="112">klicka</text></g><line class="arrow" x1="373" y1="88" x2="390" y2="88" marker-end="url(#labArrow)"></line><g class="diagram-node" data-node="2" tabindex="0" role="button" aria-label="ThreatDetections"><rect x="394" y="50" width="164" height="76" rx="13"></rect><text text-anchor="middle"><tspan x="476" y="88">ThreatDetections</tspan></text><text class="hint" text-anchor="middle" x="476" y="112">klicka</text></g><line class="arrow" x1="560" y1="88" x2="577" y2="88" marker-end="url(#labArrow)"></line><g class="diagram-node" data-node="3" tabindex="0" role="button" aria-label="Power BI"><rect x="581" y="50" width="164" height="76" rx="13"></rect><text text-anchor="middle"><tspan x="663" y="88">Power BI</tspan></text><text class="hint" text-anchor="middle" x="663" y="112">klicka</text></g></svg></div>
+        <div class="diagram-output" data-diagram-output aria-live="polite"><strong>Klicka på en ruta</strong><p>Du får en förklaring på en rad – och varför steget finns.</p></div>
+      </article>
+
+      <article class="lab-card">
+        <div class="lab-card-head"><span class="lab-step">Experiment 3 · tabell</span><span class="time-pill">5 min</span></div>
+        <h3>Pipelinekontroller – ändra poängen</h3>
+        <p>Filtrera på data, rapport eller risk. Ändra en poäng och se vilka rader som blir röda.</p>
+        <div class="table-toolbar">
+          <label>Filtrera <select data-table-filter aria-label="Filtrera tabellen"></select></label>
+          <button type="button" class="sort-btn" data-table-sort>Sortera poäng ↓</button>
+          <button type="button" class="table-reset" data-table-reset>Återställ</button>
+        </div>
+        <div class="table-summary" data-table-summary>Snitt: –</div>
+        <div class="table-wrap"><table class="lab-table">
+          <thead><tr><th>Namn</th><th>Kategori</th><th>Poäng (ändra)</th><th>Kommentar</th></tr></thead>
+          <tbody data-table-body></tbody>
+        </table></div>
+        <div class="row-explain" data-row-explain aria-live="polite"><strong>Klicka på en rad</strong><p>Du får en kort förklaring av radens poäng, kategori och färg.</p></div>
+        <p class="table-hint">Tips: ändra en siffra, filtrera, sortera eller klicka på en rad. Färgen uppdateras direkt: grön = redo, gul = osäker, röd = risk.</p>
+      </article>
+    <article class="lab-card sim-card" data-sim>
+        <div class="lab-card-head"><span class="lab-step">Experiment 4 · simulering</span><span class="time-pill">3 min</span></div>
+        <h3>Kör pipelinen två gånger</h3>
+        <p>Jämför en pipeline som dubblar data med en idempotent pipeline.</p>
+        <div class="sim-controls">
+          <div class="sim-switch" role="group" aria-label="Välj läge">
+            <button type="button" class="sim-state active" data-sim-state="before">Före</button>
+            <button type="button" class="sim-state" data-sim-state="after">Efter</button>
+          </div>
+          <button type="button" class="btn primary small" data-sim-run>Kör simuleringen</button>
+        </div>
+        <div class="sim-grid">
+          <div class="sim-terminal">
+            <div class="sim-terminal-bar"><span></span><span></span><span></span><b>output</b></div>
+            <pre data-sim-output aria-live="polite"></pre>
+          </div>
+          <div class="sim-chart-box">
+            <svg class="sim-chart" viewBox="0 0 360 220" role="img" aria-label="Stapeldiagram för kvalitet, tid och risk i simuleringen">
+              <g data-sim-bars>
+                <rect class="sim-bar" data-sim-bar="0" x="35" y="30" width="70" height="150" rx="8"></rect>
+                <rect class="sim-bar time" data-sim-bar="1" x="145" y="30" width="70" height="150" rx="8"></rect>
+                <rect class="sim-bar risk" data-sim-bar="2" x="255" y="30" width="70" height="150" rx="8"></rect>
+                <text class="sim-val" data-sim-val="0" x="70" y="22" text-anchor="middle">0</text>
+                <text class="sim-val" data-sim-val="1" x="180" y="22" text-anchor="middle">0</text>
+                <text class="sim-val" data-sim-val="2" x="290" y="22" text-anchor="middle">0</text>
+                <text class="sim-label" x="70" y="208" text-anchor="middle">Kvalitet</text>
+                <text class="sim-label" x="180" y="208" text-anchor="middle">Tid</text>
+                <text class="sim-label" x="290" y="208" text-anchor="middle">Risk</text>
+              </g>
+            </svg>
+            <p class="sim-note">Kvalitet: högre är bättre. Tid och risk: lägre är bättre.</p>
+          </div>
+        </div>
+        <div class="sim-explain" data-sim-explain></div>
+        <script type="application/json" data-sim-data>{"title": "Kör pipelinen två gånger", "intro": "Jämför en pipeline som dubblar data med en idempotent pipeline.", "before": {"label": "Kör igen utan skydd", "values": [35, 75, 85], "lines": ["run 1: inserted 20", "run 2: inserted 20", "duplicates: 20", "status: FAILED"], "explain": "Utan IsProcessed blir varje körning en ny uppsättning dubbletter."}, "after": {"label": "IsProcessed + __file__", "values": [92, 45, 12], "lines": ["run 1: inserted 20", "run 2: inserted 0", "report rows: 20", "status: OK"], "explain": "Idempotens och portabla sökvägar gör att någon annan kan köra flödet."}}</script>
+      </article>
+    </section>
+    
+
+    <section class="glossary" id="begrepp" aria-labelledby="glossaryTitle">
+      <div class="glossary-head">
+        <div><span class="section-kicker">Begreppsnyckel</span><h2 id="glossaryTitle">Klicka på ett begrepp</h2><p>Sex kort som förklarar passets viktigaste ord med ett litet exempel. Klicka på ett ord – du får en förklaring direkt.</p></div>
+        <span class="time-pill">3 min</span>
+      </div>
+      <div class="term-buttons"><button type="button" class="term-btn" data-term="0">Idempotent</button><button type="button" class="term-btn" data-term="1">IsProcessed</button><button type="button" class="term-btn" data-term="2">__file__</button><button type="button" class="term-btn" data-term="3">Threshold</button><button type="button" class="term-btn" data-term="4">Incremental</button><button type="button" class="term-btn" data-term="5">Power BI</button><button type="button" class="term-btn" data-term="6">Dubblett</button><button type="button" class="term-btn" data-term="7">Portabel sökväg</button></div>
+      <div class="term-explain" data-term-explain aria-live="polite"></div>
+      <script type="application/json" data-terms>[["Idempotent", "Samma körning ger samma resultat, utan dubbletter.", "kör två gånger"], ["IsProcessed", "Flagga som visar att en rad redan analyserats.", "WHERE IsProcessed=0"], ["__file__", "Skriptets egen plats. Används för portabla sökvägar.", "Path(__file__).parent"], ["Threshold", "Gränsen för när ett larm ska skapas.", "0.7"], ["Incremental", "Bearbetar bara nya rader.", "20 nya"], ["Power BI", "Verktyg för att bygga rapporter och kort.", "Hot per dag"], ["Dubblett", "Samma rad sparas eller räknas två gånger.", "duplicate rows"], ["Portabel sökväg", "En sökväg som fungerar på flera datorer.", "Path(__file__).parent"]]</script>
+    </section>
+    
+    <div class="exit-card" data-save-key="10">
+        <span class="section-kicker">Exit ticket</span>
+        <h3>Tre meningar innan du går</h3>
+        <p>Skriv kort. Det här är ditt eget underlag inför nästa pass och examinationen.</p>
+        <label>1. Det viktigaste jag tar med mig idag</label>
+        <textarea data-save="takeaway" placeholder="En mening…"></textarea>
+        <label>2. Ett begrepp jag fortfarande är osäker på</label>
+        <textarea data-save="unsure" placeholder="Vad vill du följa upp?"></textarea>
+        <label>3. Så kan jag använda detta i yrkesrollen</label>
+        <textarea data-save="role" placeholder="Koppla till ett konkret arbetsmoment…"></textarea>
+        <div class="mini-actions"><button type="button" class="btn primary" data-save-btn>Spara i webbläsaren</button><span class="save-note">Sparas bara lokalt på din dator.</span></div>
+      </div>
+    </section>
+    
+
+    <section id="panel-grp" class="panel" role="tabpanel" aria-labelledby="tab-grp">
+      <div class="panel-head"><div><span class="section-kicker">Flik 2</span><h2>Grupparbete</h2><p>Grupparbetet är en driftöverlämning. Laborationen är individuell, men ett bra flöde måste kunna förstås av någon annan.</p></div><span class="panel-time">ca 17 min</span></div>
+      <div class="group-board" data-group><div class="scenario"><span class="section-kicker">Scenario</span><p>Du går hem för dagen. En kollega ska köra analysen i morgon utan att fråga dig. Ni ska skriva en överlämning som täcker start, kontroll, vanliga fel och vad som händer om inga nya rader finns.</p><div class="roles"><div class='role'><b>Driftansvarig:</b> beskriver start och övervakning.</div><div class='role'><b>Dataansvarig:</b> beskriver databeroenden och kontroller.</div><div class='role'><b>Säkerhetsansvarig:</b> granskar behörigheter och loggar.</div><div class='role'><b>Mottagare:</b> testar att instruktionen går att följa utan extra frågor.</div></div></div><div class="group-decisions"><div><label>Vad måste finnas i överlämningen?</label><select data-group-label="Vad måste finnas i överlämningen?"><option value="">Välj gruppens beslut…</option><option value="Startkommando, förkrav, förväntat resultat och vanliga fel" data-advice="Rätt. Det gör flödet körbart utan tyst kunskap.">Startkommando, förkrav, förväntat resultat och vanliga fel</option><option value="Bara en länk till notebooken" data-advice="En notebook utan kontext är inte en driftinstruktion.">Bara en länk till notebooken</option><option value="Ditt personliga lösenord" data-advice="Nej. Hemligheter ska aldrig delas i klartext.">Ditt personliga lösenord</option></select></div><div><label>Hur verifierar ni att analysen faktiskt körde?</label><select data-group-label="Hur verifierar ni att analysen faktiskt körde?"><option value="">Välj gruppens beslut…</option><option value="Kontrollera antal nya rader, hot och senaste körning i databasen" data-advice="Rätt. Det ger konkreta bevis i stället för en känsla.">Kontrollera antal nya rader, hot och senaste körning i databasen</option><option value="Titta på skärmen och gissa" data-advice="Det är inte reproducerbart.">Titta på skärmen och gissa</option><option value="Fråga en kollega om det känns rätt" data-advice="Det ersätter inte en datakontroll.">Fråga en kollega om det känns rätt</option></select></div><div><label>Vad gör mottagaren om inga nya rader finns?</label><select data-group-label="Vad gör mottagaren om inga nya rader finns?"><option value="">Välj gruppens beslut…</option><option value="Rapporterar ”inga nya rader” och avslutar utan att skapa dubbletter" data-advice="Rätt. Det är ett korrekt och förväntat resultat.">Rapporterar ”inga nya rader” och avslutar utan att skapa dubbletter</option><option value="Kör om hela databasen" data-advice="Det skapar dubbletter och bryter mot idempotensen.">Kör om hela databasen</option><option value="Raderar ThreatDetections" data-advice="Det förstör historiken och är inte en rimlig åtgärd.">Raderar ThreatDetections</option></select></div></div><div class="group-notes"><div><label for="risk-10">Vår största risk</label><textarea id="risk-10" data-group-note="Vår största risk" placeholder="Skriv en konkret risk…"></textarea></div><div><label for="next-10">Vårt nästa steg</label><textarea id="next-10" data-group-note="Vårt nästa steg" placeholder="Vad gör ni först i labben?"></textarea></div></div><div class="mini-actions"><button type="button" class="btn primary" data-group-summary>Skapa gruppsammanfattning</button><button type="button" class="btn ghost" data-timer-set="5">Starta 5-minutersredovisning</button></div><div class="group-summary" aria-live="polite"><p class="summary-note">Välj alternativ och skriv några rader. Klicka sedan på knappen.</p></div><div class="checklist"><h4>Innan ni redovisar</h4><label><input type="checkbox"> <span>Instruktionen har ett exakt startkommando.</span></label><label><input type="checkbox"> <span>Det finns ett förväntat resultat med siffror eller status.</span></label><label><input type="checkbox"> <span>Vanliga fel och deras lösning är dokumenterade.</span></label><label><input type="checkbox"> <span>Hemligheter och servernamn hanteras utanför dokumentet.</span></label><label><input type="checkbox"> <span>Mottagaren har testat instruktionen själv.</span></label><div class="progress"><div class="progress-track"><span></span></div><b>0/5</b></div></div><p class="why">Alla kör sin egen pipeline. Överlämningen skrivs i grupp och testas av någon som inte byggt flödet.</p></div>
+    
+    <div class="solo-card"><strong>Solo-läge:</strong> Alla reglage, tabeller och textfält fungerar även om du arbetar själv. Gör de tre rollerna själv: bestäm, ifrågasätt och dokumentera. Skriv i gruppsammanfattningen vad du skulle fråga en kollega.</div>
+    
+    </section>
+    
+
+    <section id="panel-facit" class="panel" role="tabpanel" aria-labelledby="tab-facit">
+      <div class="panel-head"><div><span class="section-kicker">Flik 3</span><h2>Facit</h2><p>Öppna efter att du har försökt själv. Facit är ett underlag för samtal – inte en lista att kopiera.</p></div>
+        <div class="mini-actions"><button type="button" class="btn primary small" data-open-facit>Öppna alla</button><button type="button" class="btn ghost small" data-close-facit>Stäng alla</button></div>
+      </div>
+      <div class="facit-list">
+    <details class="facit"><summary>Tips, poäng och preliminära svar</summary><div class="facit-body"><p>Varje uppgift har tre tips. Poäng: 3 utan tips, 2 efter ett tips och 1 efter två eller tre tips. Du får poäng först när hela uppgiften är rätt. Det preliminära svaret är din egen första tanke – fullt svar finns i facit nedan. Poängen är ett stöd för att se hur självständigt du löste uppgiften, inte ett betyg.</p></div></details>
+    <details class="facit"><summary>Experimentverkstad – facit och tolkning</summary><div class="facit-body">
+      <p><strong>Reglaget:</strong> Pipelinen använder ett tröskelvärde för att göra om en sannolikhet till ett larm. Tröskeln är inte bara teknisk – den påverkar analytikerns arbetsbelastning och risken för missade hot. Kurvorna är en förenklad modell.</p>
+      <p><strong>Testa:</strong> Testa 0,3, 0,7 och 0,9. Vilken tröskel skulle du välja för en första pilot? Varför måste valet dokumenteras?</p>
+      <p><strong>Tabellen:</strong> IsProcessed och rapportvyn ligger högt. Kör om allt ligger lägst eftersom det skapar dubbletter. Prova att sätta IsProcessed under 50 – då syns hur hela flödet tappar sin idempotens.</p>
+      <p><strong>Bilden:</strong> Rätt ordning är Nya rader → Modell → ThreatDetections → Power BI. Filtret på IsProcessed är det som gör körningen inkrementell. Power BI läser resultatet, inte rådatan.</p>
+      <p><strong>Slutsats:</strong> Reglaget visar att larmtröskeln är ett verksamhetsbeslut. Tabellen visar att idempotens och portabilitet är kvalitet i praktiken. Bilden visar att pipeline och rapport är samma kedja – inte två separata projekt.</p>
+    </div></details>
+    <details class="facit"><summary>Slutquiz – alla rätt och förklaringar</summary><div class="facit-body">
+      <ol><li><strong>Vad är syftet med inkrementell behandling?</strong><br><span class='ok'>Rätt: Att bara bearbeta nya eller oanalyserade rader</span> – Rätt. Det sparar tid och undviker dubbletter.</li><li><strong>Vad gör IsProcessed?</strong><br><span class='ok'>Rätt: Visar om en rad redan analyserats</span> – Rätt. Det gör körningen idempotent.</li><li><strong>Varför relativa sökvägar?</strong><br><span class='ok'>Rätt: Så att skriptet fungerar oavsett var projektet ligger</span> – Rätt. Det gör flödet portabelt.</li><li><strong>Vad ska hända vid andra körningen utan ny data?</strong><br><span class='ok'>Rätt: Inga nya rader – utan dubbletter</span> – Rätt. Det visar idempotens.</li></ol>
+    </div></details>
+    <details class="facit"><summary>Quiz – rätt svar och varför</summary><div class="facit-body"><ol><li><strong>Vad är syftet med inkrementell behandling?</strong><br><span class='ok'>Rätt: Att bara bearbeta nya eller oanalyserade rader.</span> – Rätt. Det sparar tid och förhindrar dubbletter.</li><li><strong>Varför använda relativa sökvägar i skriptet?</strong><br><span class='ok'>Rätt: Så att det fungerar oavsett var projektet ligger på datorn.</span> – Rätt. Portabilitet är en förutsättning för att andra ska kunna köra.</li><li><strong>Vad ska hända när du kör pipelinen igen utan ny data?</strong><br><span class='ok'>Rätt: Den ska rapportera att inga nya rader finns – utan att skapa dubbletter.</span> – Rätt. Det visar att flödet är idempotent.</li></ol></div></details><details class="facit"><summary>Begreppsmatchning</summary><div class="facit-body"><ul><li><strong>IsProcessed</strong> → Flagga som visar om en rad redan analyserats</li><li><strong>__file__</strong> → Skriptets egen plats, används för portabla sökvägar</li><li><strong>vw_TrafficAnalysis</strong> → Vy som sammanställer data för rapporten</li></ul></div></details><details class="facit"><summary>Beslutsövningar</summary><div class="facit-body"><ol><li><strong>Läge 1:</strong> Skriptet fungerar på din dator men inte hos en kollega. Vad kontrollerar du först?<br><span class='ok'>Om sökvägar och servernamn är hårdkodade.</span> – Rätt. Portabilitet är det vanligaste problemet när något fungerar lokalt.</li><li><strong>Läge 2:</strong> Pipelinen har kört två gånger och rapporten visar dubbletter. Vad är sannolikt fel?<br><span class='ok'>Rader markeras inte som behandlade, eller filtret används inte.</span> – Rätt. Idempotensen har brustit.</li><li><strong>Läge 3:</strong> Ett PowerShell-skript stoppas av exekveringspolicyn. Vad är rimligast?<br><span class='ok'>Kör med ett tillfälligt Bypass för just den processen och förklara varför.</span> – Rätt. Det är en kontrollerad lösning för övningen.</li></ol></div></details><details class="facit"><summary>Grupparbete – lärarmodell</summary><div class="facit-body"><p>En bra överlämning är kort men komplett: förkrav, startkommando, förväntat resultat, felsökning och en ägare. Den ska också säga uttryckligen att ”inga nya rader” är ett giltigt resultat.</p></div></details><details class="facit"><summary>Python – det du ska ta med dig</summary><div class="facit-body"><p>Python-delen handlar om att filtrera på IsProcessed, spara prediktioner och markera raderna som behandlade. Idempotens är nyckeln: samma körning två gånger ska inte ge dubbletter.</p></div></details><details class="facit"><summary>Läraranteckning</summary><div class="facit-body"><p>Power BI finns inte för Mac – bestäm i förväg hur de studenterna löser rapportdelen. Testa .pbix själv före passet.</p></div></details></div>
+    </section>
+    
+
+    
+
+
+    
+
+
+    
+
+
+    
+    <section class="wow-lab" id="ai-verkstad" data-wow-lab aria-labelledby="wowTitle10">
+      <div class="wow-head">
+        <div>
+          <span class="wow-kicker">AI-verkstad · bonuslab</span>
+          <h2 id="wowTitle10">Kritiska vägen genom söndagens pipeline</h2>
+          <p>Extract, validate, två transform-grenar, train och publish. Dra i workers – se vad som faktiskt förkortar körningen.</p>
+          <div class="wow-skills"><span>Airflow</span><span>DAG</span><span>Critical path</span></div>
+        </div>
+        <div class="wow-badge">SOLO + GRUPP<small>2 min per läge · utanför 60-min</small></div>
+      </div>
+      <div class="wow-mode" role="group" aria-label="Välj solo- eller gruppläge">
+        <button type="button" class="wow-mode-btn active" data-wow-mode="solo">Solo · 2 min</button>
+        <button type="button" class="wow-mode-btn" data-wow-mode="team">Grupp · 2 min</button>
+      </div>
+      <p class="wow-prompt"><b data-wow-goal>Solo · 2 min</b><span data-wow-prompt>Få publish under 13 minuter med 2 workers. Vilken gren är kritisk?</span></p>
+      <div class="wow-grid">
+        <div class="wow-stage">
+          <canvas class="wow-canvas" data-wow-canvas width="760" height="330" role="img" aria-label="Gantt-schema för en Airflow-DAG med två parallella transform-grenar"></canvas>
+          <div class="wow-legend" data-wow-legend></div>
+        </div>
+        <aside class="wow-side">
+          <div class="wow-metrics" data-wow-metrics></div>
+          <div class="wow-controls" data-wow-controls></div>
+          <div class="wow-insight" data-wow-insight aria-live="polite"></div>
+          <button type="button" class="wow-random" data-wow-random>Nytt scenario ↯</button>
+        </aside>
+      </div>
+      <div class="wow-foot">
+        <span><b>Arbetsmarknad</b>Data engineer: DAG-tänk, dependencies och kostnad per körning är grunden i varje modern dataplattform.</span>
+        <span><b>Python</b>Airflow TaskFlow/Prefect: dependencies, retries och backfill.</span>
+        <span><b>Kursplan</b>3</span>
+      </div>
+      <script type="application/json" data-wow-config>{"id":"10","engine":"gantt","variant":"dag","title":"Kritiska vägen genom söndagens pipeline","intro":"Extract, validate, två transform-grenar, train och publish. Dra i workers – se vad som faktiskt förkortar körningen.","skills":["Airflow","DAG","Critical path"],"market":"Data engineer: DAG-tänk, dependencies och kostnad per körning är grunden i varje modern dataplattform.","python":"Airflow TaskFlow/Prefect: dependencies, retries och backfill.","modes":{"solo":{"goal":"Solo · 2 min","prompt":"Få publish under 13 minuter med 2 workers. Vilken gren är kritisk?"},"team":{"goal":"Grupp · 2 min","prompt":"Välj workers för nattkörningen. Vad kostar en timme extra – och vad vinner ni?"}},"knobs":[{"id":"workers","label":"Workers","min":1,"max":4,"step":1,"value":2,"unit":"st"},{"id":"cache","label":"Cacha transform","type":"toggle","value":false}],"metrics":[{"key":"total","label":"Total tid","kind":"sec"},{"key":"critical","label":"Kritisk väg","kind":"sec"},{"key":"workers","label":"Workers","kind":"int"}],"stages":[{"id":"extract","label":"Extract","short":"Extract","dur":120,"deps":[]},{"id":"validate","label":"Validate","short":"Validate","dur":60,"deps":["extract"]},{"id":"ta","label":"Transform A","short":"Transform A","dur":180,"deps":["validate"],"cacheable":true},{"id":"tb","label":"Transform B","short":"Transform B","dur":150,"deps":["validate"],"cacheable":true},{"id":"train","label":"Train","short":"Train","dur":300,"deps":["ta","tb"]},{"id":"publish","label":"Publish","short":"Publish","dur":60,"deps":["train"]}],"aria":"Gantt-schema för en Airflow-DAG med två parallella transform-grenar"}</script>
+    </section>
+
+
+    <section class="final-quiz" id="slutquiz" aria-labelledby="finalTitle">
+      <div class="final-head">
+        <div><span class="lab-badge">Slutquiz</span><h2 id="finalTitle">Fyra frågor efter experimenten</h2>
+          <p>Quizet tar ca 5 min. Det ligger efter flikarna och mini projektet ligger efter quizet. Svara först, rätta sedan och läs förklaringarna.</p></div>
+        <div class="final-score" data-final-score>0 / 4</div>
+      </div>
+      <div data-final-questions></div>
+      <div class="final-actions">
+        <button type="button" class="btn primary" data-final-check>Rätta quizet</button>
+        <button type="button" class="btn ghost" data-final-reset>Gör om</button>
+      </div>
+      <div class="final-result" data-final-result aria-live="polite"></div>
+    </section>
+    
+
+    <section class="mini-project" id="miniprojekt" aria-labelledby="miniTitle">
+      <div class="mini-head">
+        <div><span class="lab-badge">Mini projekt</span><h2 id="miniTitle">Kör pipelinen två gånger</h2><p>Visa att pipelinen är idempotent och bygg ett Power BI-kort.</p></div>
+        <span class="time-pill">efter HTML</span>
+      </div>
+      <div class="mini-grid">
+        <div>
+          <h3>Gör så här</h3>
+          <ol><li>Kör run_ml_analysis.ps1 och verifiera hoten.</li><li>Kör igen och visa att svaret blir ”inga nya rader”.</li><li>Koppla Power BI och bygg ett eget kort.</li><li>Skriv en överlämningsrad till en kollega.</li></ol>
+          <p class="mini-deliverable"><strong>Lämna in:</strong> Två körningar, skärmbild och en kort överlämning.</p>
+        </div>
+        <div class="checklist"><h4>Klart när</h4><label><input type="checkbox"> <span>Första körningen är klar</span></label><label><input type="checkbox"> <span>Andra körningen ger inga nya rader</span></label><label><input type="checkbox"> <span>Power BI-kortet finns</span></label><label><input type="checkbox"> <span>Överlämningen är skriven</span></label><div class="progress"><div class="progress-track"><span></span></div><b>0/4</b></div></div>
+      </div>
+      <p class="mini-note">Mini projektet är nästa steg efter HTML-passet. Checklistan är interaktiv och sparas bara i sidan – inte i någon extern tjänst.</p>
+    </section>
+    
+
+    <section class="day-score" id="dagens-poang" aria-labelledby="dayScoreTitle">
+      <span class="section-kicker">Slutpoäng</span>
+      <h2 id="dayScoreTitle">Dagens poäng</h2>
+      <p>Uppgifter 9 p + slutquiz 4 p + mini projekt 4 p. Tipsen drar ned uppgiftspoängen – men du får alltid minst 1 p när uppgiften är rätt.</p>
+      <div class="day-grid">
+        <div><span>Uppgifter</span><b data-day-tasks>0 / 9</b></div>
+        <div><span>Slutquiz</span><b data-day-quiz>0 / 4</b></div>
+        <div><span>Mini projekt</span><b data-day-mini>0 / 4</b></div>
+        <div class="day-total"><span>Totalt</span><b data-day-total>0 / 17</b></div>
+      </div>
+      <p class="day-message" data-day-message>Du har 0 av 17 poäng. Börja med uppgift 1 – försök först utan tips.</p>
+    </section>
+    
+
+    <section class="resources" id="extra-material" aria-labelledby="resourcesTitle">
+      <div class="resources-head">
+        <div><span class="section-kicker">Extra material</span><h2 id="resourcesTitle">Testa vidare</h2><p>Välj en länk om du vill fördjupa dig. Sidan fungerar utan internet – länkarna är bara extra.</p></div>
+        <span class="time-pill">efter passet</span>
+      </div>
+      <div class="resource-grid"><a class="resource-card" href="https://powerbi.microsoft.com/" target="_blank" rel="noopener noreferrer"><span>Extramaterial</span><strong>Power BI</strong><small>Bygg rapporter och kort.</small></a><a class="resource-card" href="https://airflow.apache.org/docs/" target="_blank" rel="noopener noreferrer"><span>Extramaterial</span><strong>Airflow docs</strong><small>DAG:er, scheman och operatörer.</small></a><a class="resource-card" href="https://www.prefect.io/" target="_blank" rel="noopener noreferrer"><span>Extramaterial</span><strong>Prefect</strong><small>Ett alternativ för Python-flöden.</small></a></div>
+    </section>
+    
+</main>
+<footer class="foot">
+  <p><strong>Pass 10 av 12</strong> · Säkerhetsanalys & ML · del 2</p>
+  <p>Fristående workshop. Öppna filen direkt i webbläsaren – allt körs lokalt, utan server, installation eller externa resurser.</p>
+</footer>
+</div>
+<script>
+(function(){
+  "use strict";
+
+  // Flikar
+  const tabs = Array.from(document.querySelectorAll("[data-tab]"));
+  tabs.forEach(function(tab){
+    tab.addEventListener("click", function(){
+      tabs.forEach(function(t){
+        const active = t === tab;
+        t.setAttribute("aria-selected", active ? "true" : "false");
+        t.classList.toggle("active", active);
+      });
+      document.querySelectorAll(".panel").forEach(function(panel){
+        panel.classList.toggle("active", panel.id === tab.dataset.tab);
+      });
+    });
+  });
+
+  // Timer
+  const display = document.getElementById("timerDisplay");
+  const timerBar = document.querySelector(".timer-bar");
+  const startButtons = Array.from(document.querySelectorAll("[data-timer-start]"));
+  let total = Number(document.body.dataset.timerMinutes || 60) * 60;
+  let remaining = total;
+  let interval = null;
+
+  function two(n){ return String(n).padStart(2, "0"); }
+  function renderTimer(){
+    if(!display) return;
+    const m = Math.floor(Math.max(remaining,0) / 60);
+    const s = Math.max(remaining,0) % 60;
+    display.textContent = two(m) + ":" + two(s);
+    if(timerBar) timerBar.classList.toggle("is-done", remaining <= 0);
+  }
+  function stopTimer(){
+    if(interval){ clearInterval(interval); interval = null; }
+    startButtons.forEach(function(b){ b.textContent = "Starta"; });
+  }
+  function startTimer(){
+    if(interval || remaining <= 0) return;
+    startButtons.forEach(function(b){ b.textContent = "Pausa"; });
+    interval = setInterval(function(){
+      remaining -= 1;
+      renderTimer();
+      if(remaining <= 0){
+        stopTimer();
+        display.textContent = "Tid!";
+      }
+    }, 1000);
+  }
+  startButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      if(interval) stopTimer(); else startTimer();
+    });
+  });
+  document.querySelectorAll("[data-timer-reset]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      stopTimer(); remaining = total; renderTimer();
+    });
+  });
+  document.querySelectorAll("[data-timer-set]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      stopTimer();
+      remaining = Number(btn.dataset.timerSet) * 60;
+      renderTimer();
+      startTimer();
+    });
+  });
+  renderTimer();
+
+  // Quiz
+  document.querySelectorAll(".quiz-question").forEach(function(q){
+    const buttons = Array.from(q.querySelectorAll(".option"));
+    buttons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(q.dataset.answered === "1") return;
+        q.dataset.answered = "1";
+        const correct = btn.dataset.correct === "1";
+        btn.classList.add(correct ? "correct" : "wrong");
+        const right = q.querySelector('.option[data-correct="1"]');
+        if(right) right.classList.add("correct");
+        buttons.forEach(function(b){ b.disabled = true; });
+        const fb = q.querySelector(".feedback");
+        if(fb){
+          fb.hidden = false;
+          fb.className = "feedback " + (correct ? "good" : "bad");
+          fb.textContent = (correct ? "Rätt! " : "Inte riktigt. ") + (btn.dataset.why || "");
+        }
+      });
+    });
+  });
+
+  // Matchning
+  document.querySelectorAll(".match-box").forEach(function(box){
+    const check = box.querySelector("[data-check-match]");
+    const reset = box.querySelector("[data-reset-match]");
+    if(check){
+      check.addEventListener("click", function(){
+        const selects = Array.from(box.querySelectorAll("select"));
+        let score = 0;
+        const wrong = [];
+        selects.forEach(function(sel){
+          const ok = sel.value === sel.dataset.answer;
+          sel.classList.toggle("correct", ok);
+          sel.classList.toggle("wrong", !ok);
+          if(ok) score += 1;
+          else wrong.push(sel.dataset.term + " → " + sel.dataset.answer);
+        });
+        const fb = box.querySelector(".feedback");
+        if(fb){
+          fb.hidden = false;
+          fb.className = "feedback " + (score === selects.length ? "good" : "bad");
+          fb.textContent = score + " av " + selects.length + " rätt." + (wrong.length ? " Rätt svar: " + wrong.join(" · ") : " Snyggt!");
+        }
+      });
+    }
+    if(reset){
+      reset.addEventListener("click", function(){
+        box.querySelectorAll("select").forEach(function(sel){
+          sel.value = "";
+          sel.classList.remove("correct", "wrong");
+        });
+        const fb = box.querySelector(".feedback");
+        if(fb){ fb.hidden = true; fb.textContent = ""; }
+      });
+    }
+  });
+
+  // Beslutsövningar
+  document.querySelectorAll(".decision-card").forEach(function(card){
+    const buttons = Array.from(card.querySelectorAll(".decision-option"));
+    buttons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if(card.dataset.answered === "1") return;
+        card.dataset.answered = "1";
+        const correct = btn.dataset.correct === "1";
+        btn.classList.add(correct ? "correct" : "wrong");
+        const right = card.querySelector('.decision-option[data-correct="1"]');
+        if(right) right.classList.add("correct");
+        buttons.forEach(function(b){ b.disabled = true; });
+        const fb = card.querySelector(".feedback");
+        if(fb){
+          fb.hidden = false;
+          fb.className = "feedback " + (correct ? "good" : "bad");
+          fb.textContent = (correct ? "Rätt! " : "Inte riktigt. ") + (btn.dataset.why || "");
+        }
+      });
+    });
+  });
+
+  // Gruppsammanträffande
+  document.querySelectorAll("[data-group]").forEach(function(board){
+    const btn = board.querySelector("[data-group-summary]");
+    if(!btn) return;
+    btn.addEventListener("click", function(){
+      const lines = [];
+      board.querySelectorAll("select[data-group-label]").forEach(function(sel){
+        const opt = sel.options[sel.selectedIndex];
+        const label = sel.dataset.groupLabel;
+        const chosen = sel.value ? opt.text : "INTE VALT";
+        const advice = sel.value && opt.dataset.advice ? " → " + opt.dataset.advice : "";
+        lines.push(label + ": " + chosen + advice);
+      });
+      board.querySelectorAll("[data-group-note]").forEach(function(ta){
+        if(ta.value.trim()){
+          lines.push(ta.dataset.groupNote + ": " + ta.value.trim());
+        }
+      });
+      const summary = board.querySelector(".group-summary");
+      if(!summary) return;
+      summary.replaceChildren();
+      const h = document.createElement("h4");
+      h.textContent = "Gruppens sammanfattning";
+      summary.appendChild(h);
+      lines.forEach(function(line){
+        const p = document.createElement("p");
+        p.textContent = line;
+        summary.appendChild(p);
+      });
+      const note = document.createElement("p");
+      note.className = "summary-note";
+      note.textContent = "Redovisa muntligt på max 3 minuter. Lyft särskilt en risk och en åtgärd.";
+      summary.appendChild(note);
+    });
+  });
+
+  // Checklistor
+  document.querySelectorAll(".checklist").forEach(function(list){
+    const boxes = Array.from(list.querySelectorAll('input[type="checkbox"]'));
+    const bar = list.querySelector(".progress-track span");
+    const count = list.querySelector(".progress b");
+    function update(){
+      const done = boxes.filter(function(b){ return b.checked; }).length;
+      if(bar) bar.style.width = (boxes.length ? (done / boxes.length) * 100 : 0) + "%";
+      if(count) count.textContent = done + "/" + boxes.length;
+    }
+    boxes.forEach(function(b){ b.addEventListener("change", update); });
+    update();
+  });
+
+  // Facit
+  document.querySelectorAll("[data-open-facit]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".facit-list details").forEach(function(d){ d.open = true; });
+    });
+  });
+  document.querySelectorAll("[data-close-facit]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".facit-list details").forEach(function(d){ d.open = false; });
+    });
+  });
+
+  // Exit ticket – sparas bara lokalt i webbläsaren
+  document.querySelectorAll("[data-save-key]").forEach(function(panel){
+    const key = "python-workshop-" + panel.dataset.saveKey;
+    const fields = Array.from(panel.querySelectorAll("[data-save]"));
+    try {
+      fields.forEach(function(field){
+        const value = localStorage.getItem(key + "-" + field.dataset.save);
+        if(value) field.value = value;
+      });
+    } catch (err) { /* localStorage kan vara avstängt */ }
+    const btn = panel.querySelector("[data-save-btn]");
+    if(btn){
+      btn.addEventListener("click", function(){
+        try {
+          fields.forEach(function(field){
+            localStorage.setItem(key + "-" + field.dataset.save, field.value);
+          });
+          btn.textContent = "Sparat lokalt";
+          setTimeout(function(){ btn.textContent = "Spara i webbläsaren"; }, 1800);
+        } catch (err) {
+          btn.textContent = "Kunde inte spara";
+        }
+      });
+    }
+  });
+})();
+</script>
+<script>window.__LAB__ = {"labIntro": "Dra i tröskelvärdet och se hur missade hot och falsklarm byter plats. Ändra sedan en kontroll i tabellen.", "slider": {"label": "Tröskelvärde för larm", "min": 0, "max": 1, "step": 0.05, "value": 0.7, "suffixA": " %", "suffixB": " %", "formulaA": "5 + x * 60", "formulaB": "90 - x * 80", "labelA": "Missade hot", "labelB": "Falsklarm", "tone": "x >= 0.5 && x <= 0.8 ? 'good' : 'warn'", "insight": "x < 0.4 ? 'Låg tröskel ger få missade hot men många falsklarm. Analytikern drunknar.' : (x > 0.8 ? 'Hög tröskel ger få falsklarm men missar fler hot. Det kan vara farligare.' : 'Här vägs missade hot mot falsklarm. Valet ska dokumenteras och följas upp över tid.')", "explain": "Pipelinen använder ett tröskelvärde för att göra om en sannolikhet till ett larm. Tröskeln är inte bara teknisk – den påverkar analytikerns arbetsbelastning och risken för missade hot. Kurvorna är en förenklad modell.", "try": "Testa 0,3, 0,7 och 0,9. Vilken tröskel skulle du välja för en första pilot? Varför måste valet dokumenteras?"}, "chart": {"title": "Avvägningen vid larm", "intro": "Dra i reglaget. Grön linje är missade hot, röd linje är falsklarm.", "aria": "Linjediagram över missade hot och falsklarm vid olika tröskelvärden", "xLabel": "Tröskelvärde"}, "diagram": {"title": "Pipeline utan dubbletter", "intro": "Klicka på stegen. Nyckeln är att bara nya rader bearbetas – och att resultatet syns i rapporten.", "nodes": [["Nya rader", "Filtreras med IsProcessed = 0. Bara oanalyserad trafik går vidare."], ["Modell", "Predikterar 0 eller 1 och returnerar en konfidens. Tröskeln avgör larm."], ["ThreatDetections", "Resultatet sparas med prediktion, konfidens och modellversion."], ["Power BI", "Rapportvyn vw_TrafficAnalysis gör resultatet begripligt för en analytiker."]]}, "table": {"title": "Pipelinekontroller – ändra poängen", "intro": "Filtrera på data, rapport eller risk. Ändra en poäng och se vilka rader som blir röda.", "filterLabel": "Kategori", "rows": [{"name": "IsProcessed", "category": "Data", "score": 90, "note": "Inkrementell"}, {"name": "__file__", "category": "Kod", "score": 86, "note": "Portabel sökväg"}, {"name": "vw_TrafficAnalysis", "category": "Rapport", "score": 88, "note": "Ren rapportvy"}, {"name": "Kör om allt", "category": "Risk", "score": 20, "note": "Dubbletter"}, {"name": "Inga nya rader", "category": "Drift", "score": 80, "note": "Korrekt svar"}]}, "labTakeaway": "Reglaget visar att larmtröskeln är ett verksamhetsbeslut. Tabellen visar att idempotens och portabilitet är kvalitet i praktiken. Bilden visar att pipeline och rapport är samma kedja – inte två separata projekt.", "tableFacit": "IsProcessed och rapportvyn ligger högt. Kör om allt ligger lägst eftersom det skapar dubbletter. Prova att sätta IsProcessed under 50 – då syns hur hela flödet tappar sin idempotens.", "diagramFacit": "Rätt ordning är Nya rader → Modell → ThreatDetections → Power BI. Filtret på IsProcessed är det som gör körningen inkrementell. Power BI läser resultatet, inte rådatan.", "finalQuiz": [{"q": "Vad är syftet med inkrementell behandling?", "options": [["Att bara bearbeta nya eller oanalyserade rader", true, "Rätt. Det sparar tid och undviker dubbletter."], ["Att radera all data", false, "Det är motsatsen."], ["Att träna om modellen varje gång", false, "Träning och analys är separata steg."]]}, {"q": "Vad gör IsProcessed?", "options": [["Visar om en rad redan analyserats", true, "Rätt. Det gör körningen idempotent."], ["Ritar en dashboard", false, "Det är en flagga i datan."], ["Tränar modellen", false, "Det gör träningssteget."]]}, {"q": "Varför relativa sökvägar?", "options": [["Så att skriptet fungerar oavsett var projektet ligger", true, "Rätt. Det gör flödet portabelt."], ["För att filen ska bli kortare", false, "Längden är irrelevant."], ["För att PowerShell ska starta snabbare", false, "Det handlar om filsökning."]]}, {"q": "Vad ska hända vid andra körningen utan ny data?", "options": [["Inga nya rader – utan dubbletter", true, "Rätt. Det visar idempotens."], ["Alla rader analyseras om", false, "Då är filtret fel."], ["Systemet kraschar", false, "Tomma indata ska hanteras kontrollerat."]]}]};
+
+(function(){
+  "use strict";
+  const LAB = window.__LAB__;
+  if(!LAB) return;
+  const one = s => document.querySelector(s);
+  const all = s => Array.from(document.querySelectorAll(s));
+  const esc = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  const num = v => Number(v);
+
+  // ---------- Reglage + graf ----------
+  const slider = one("[data-lab-slider]");
+  if(slider){
+    const s = LAB.slider;
+    const valueOut = one("[data-slider-value]");
+    const metricA = one("[data-metric-a]");
+    const metricB = one("[data-metric-b]");
+    const insight = one("[data-slider-insight]");
+    const grid = one("[data-chart-grid]");
+    const seriesA = one("[data-chart-a]");
+    const seriesB = one("[data-chart-b]");
+    const current = one("[data-chart-current]");
+    const xLabel = one("[data-chart-xlabel]");
+    const expr = (code, x) => {
+      try { return Function("x", "return (" + code + ");")(x); }
+      catch(e){ return 0; }
+    };
+    const fmtNum = (v, suffix) => {
+      const rounded = Math.round(v * 10) / 10;
+      return rounded.toLocaleString("sv-SE") + (suffix || "");
+    };
+    const fmtAxis = v => {
+      const max = num(s.max);
+      if(max <= 1) return (Math.round(v * 100) / 100).toLocaleString("sv-SE");
+      return Math.round(v).toLocaleString("sv-SE");
+    };
+    const draw = () => {
+      const min = num(s.min), max = num(s.max), x = num(slider.value);
+      const W = 560, H = 280, L = 48, R = 16, T = 16, B = 38;
+      const pw = W - L - R, ph = H - T - B;
+      const samples = 40;
+      const xs = [];
+      for(let i=0;i<=samples;i++) xs.push(min + (max - min) * i / samples);
+      const av = xs.map(v => Math.max(0, expr(s.formulaA, v)));
+      const bv = xs.map(v => Math.max(0, expr(s.formulaB, v)));
+      const rawMax = Math.max(1, ...av, ...bv);
+      const yMax = Math.max(1, Math.ceil(rawMax / 10) * 10);
+      const px = v => L + ((v - min) / (max - min || 1)) * pw;
+      const py = v => T + ph - (Math.max(0, v) / yMax) * ph;
+      let gridHtml = "";
+      for(let i=0;i<=4;i++){
+        const y = T + ph * i / 4;
+        const val = yMax * (1 - i / 4);
+        gridHtml += '<line class="grid-line" x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + (W-R) + '" y2="' + y.toFixed(1) + '"></line>';
+        gridHtml += '<text x="' + (L-7) + '" y="' + (y+3).toFixed(1) + '" text-anchor="end">' + fmtAxis(val) + '</text>';
+      }
+      for(let i=0;i<=4;i++){
+        const xPos = L + pw * i / 4;
+        const val = min + (max - min) * i / 4;
+        gridHtml += '<line class="grid-line" x1="' + xPos.toFixed(1) + '" y1="' + T + '" x2="' + xPos.toFixed(1) + '" y2="' + (T+ph) + '"></line>';
+        gridHtml += '<text x="' + xPos.toFixed(1) + '" y="' + (H-16) + '" text-anchor="middle">' + fmtAxis(val) + '</text>';
+      }
+      gridHtml += '<line class="axis" x1="' + L + '" y1="' + (T+ph) + '" x2="' + (W-R) + '" y2="' + (T+ph) + '"></line>';
+      gridHtml += '<line class="axis" x1="' + L + '" y1="' + T + '" x2="' + L + '" y2="' + (T+ph) + '"></line>';
+      grid.innerHTML = gridHtml;
+      const points = arr => arr.map((v,i) => px(xs[i]).toFixed(1) + "," + py(v).toFixed(1)).join(" ");
+      seriesA.innerHTML = '<polyline class="series-a" points="' + points(av) + '"></polyline>';
+      seriesB.innerHTML = '<polyline class="series-b" points="' + points(bv) + '"></polyline>';
+      const a = Math.max(0, expr(s.formulaA, x));
+      const b = Math.max(0, expr(s.formulaB, x));
+      current.innerHTML =
+        '<line class="current-line" x1="' + px(x).toFixed(1) + '" y1="' + T + '" x2="' + px(x).toFixed(1) + '" y2="' + (T+ph) + '"></line>' +
+        '<circle class="dot-a" cx="' + px(x).toFixed(1) + '" cy="' + py(a).toFixed(1) + '" r="5"></circle>' +
+        '<circle class="dot-b" cx="' + px(x).toFixed(1) + '" cy="' + py(b).toFixed(1) + '" r="5"></circle>';
+      if(valueOut) valueOut.textContent = fmtNum(x, "");
+      if(metricA) metricA.textContent = fmtNum(a, s.suffixA);
+      if(metricB) metricB.textContent = fmtNum(b, s.suffixB);
+      if(xLabel) xLabel.textContent = LAB.chart.xLabel || s.label;
+      if(insight){
+        let text = "";
+        try { text = Function("x","a","b", "return (" + s.insight + ");")(x,a,b); }
+        catch(e){ text = ""; }
+        let tone = "insight";
+        try { tone += " " + Function("x","a","b", "return (" + s.tone + ");")(x,a,b); }
+        catch(e){ tone += " warn"; }
+        insight.className = tone;
+        insight.textContent = text;
+      }
+    };
+    slider.addEventListener("input", draw);
+    draw();
+  }
+
+  // ---------- Klickbar SVG ----------
+  const diagramOut = one("[data-diagram-output]");
+  const nodes = all("[data-node]");
+  const activate = g => {
+    const node = LAB.diagram.nodes[num(g.dataset.node)];
+    if(!node || !diagramOut) return;
+    nodes.forEach(n => n.classList.remove("active"));
+    g.classList.add("active");
+    diagramOut.innerHTML = "<strong>" + esc(node[0]) + "</strong><p>" + esc(node[1]) + "</p>";
+  };
+  nodes.forEach(g => {
+    g.addEventListener("click", () => activate(g));
+    g.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); activate(g); }
+    });
+  });
+
+  // ---------- Interaktiv tabell ----------
+  const tableBody = one("[data-table-body]");
+  if(tableBody){
+    const t = LAB.table;
+    const original = t.rows.map(row => ({...row}));
+    const state = {rows: t.rows.map((row,i) => ({...row, id:"r"+i})), filter:"all", sort:"none"};
+    const filter = one("[data-table-filter]");
+    const summary = one("[data-table-summary]");
+    const sortBtn = one("[data-table-sort]");
+    const resetBtn = one("[data-table-reset]");
+    const tone = score => score >= 80 ? "good" : (score >= 50 ? "warn" : "bad");
+    const visible = () => state.rows.filter(r => state.filter === "all" || r.category === state.filter);
+    const summaryText = () => {
+      const rows = visible();
+      const avg = rows.length ? rows.reduce((s,r) => s + num(r.score), 0) / rows.length : 0;
+      const high = rows.length ? Math.max(...rows.map(r => num(r.score))) : 0;
+      const risk = rows.filter(r => num(r.score) < 50).length;
+      if(summary){
+        summary.className = "table-summary " + (avg >= 75 ? "good" : (avg >= 50 ? "warn" : "bad"));
+        summary.innerHTML = "<strong>Snitt:</strong> " + Math.round(avg) + " % · <strong>Högst:</strong> " + high + " % · <strong>Riskrader:</strong> " + risk;
+      }
+    };
+    const render = () => {
+      let rows = visible();
+      if(state.sort === "desc") rows = rows.slice().sort((a,b) => num(b.score) - num(a.score));
+      if(state.sort === "asc") rows = rows.slice().sort((a,b) => num(a.score) - num(b.score));
+      tableBody.innerHTML = rows.map(r => {
+        const cls = "row-" + tone(num(r.score));
+        return "<tr class='" + cls + "'><td><strong>" + esc(r.name) + "</strong></td><td>" + esc(r.category) + "</td>" +
+          "<td><div class='score-cell'><input type='number' min='0' max='100' inputmode='numeric' value='" + num(r.score) + "' data-score='" + r.id + "' aria-label='Poäng för " + esc(r.name) + "'>" +
+          "<span class='score-bar'><i style='width:" + clamp(num(r.score),0,100) + "%'></i></span></div></td>" +
+          "<td>" + esc(r.note) + "</td></tr>";
+      }).join("");
+      tableBody.querySelectorAll("[data-score]").forEach(inp => {
+        inp.addEventListener("input", () => {
+          const row = state.rows.find(r => r.id === inp.dataset.score);
+          if(!row) return;
+          row.score = clamp(Number(inp.value) || 0, 0, 100);
+          const tr = inp.closest("tr");
+          tr.classList.remove("row-good","row-warn","row-bad");
+          tr.classList.add("row-" + tone(row.score));
+          const bar = tr.querySelector(".score-bar i");
+          if(bar) bar.style.width = row.score + "%";
+          summaryText();
+        });
+      });
+      summaryText();
+    };
+    if(filter){
+      const cats = [...new Set(state.rows.map(r => r.category))];
+      filter.innerHTML = '<option value="all">Alla</option>' + cats.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>').join("");
+      filter.addEventListener("change", () => { state.filter = filter.value; render(); });
+    }
+    if(sortBtn){
+      sortBtn.addEventListener("click", () => {
+        state.sort = state.sort === "desc" ? "asc" : "desc";
+        sortBtn.textContent = state.sort === "desc" ? "Sortera poäng ↑" : "Sortera poäng ↓";
+        render();
+      });
+    }
+    if(resetBtn){
+      resetBtn.addEventListener("click", () => {
+        state.rows = original.map((row,i) => ({...row, id:"r"+i}));
+        state.filter = "all"; state.sort = "none";
+        if(filter) filter.value = "all";
+        if(sortBtn) sortBtn.textContent = "Sortera poäng ↓";
+        render();
+      });
+    }
+    render();
+  }
+
+  // ---------- Slutquiz ----------
+  const finalWrap = one("[data-final-questions]");
+  if(finalWrap){
+    const qs = LAB.finalQuiz;
+    const scoreEl = one("[data-final-score]");
+    const result = one("[data-final-result]");
+    const selected = new Array(qs.length).fill(null);
+    let checked = false;
+    const renderQuiz = () => {
+      finalWrap.innerHTML = qs.map((item, qi) => {
+        const opts = item.options.map((opt, oi) =>
+          '<button type="button" class="final-option" data-final-q="' + qi + '" data-final-opt="' + oi + '">' +
+          '<span class="option-mark">' + String.fromCharCode(65 + oi) + '</span> ' + esc(opt[0]) + '</button>'
+        ).join("");
+        return '<div class="final-q" data-final-card="' + qi + '">' +
+          '<div class="final-q-head"><span>Fråga ' + (qi+1) + '</span><span>Välj ett svar</span></div>' +
+          '<p>' + esc(item.q) + '</p><div class="final-options">' + opts + '</div>' +
+          '<div class="feedback" hidden aria-live="polite"></div></div>';
+      }).join("");
+      finalWrap.querySelectorAll(".final-option").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if(checked) return;
+          const qi = num(btn.dataset.finalQ), oi = num(btn.dataset.finalOpt);
+          selected[qi] = oi;
+          const card = finalWrap.querySelector('[data-final-card="' + qi + '"]');
+          card.querySelectorAll(".final-option").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+        });
+      });
+    };
+    const resetQuiz = () => {
+      selected.fill(null); checked = false;
+      if(scoreEl) scoreEl.textContent = "0 / " + qs.length;
+      if(result){ result.className = "final-result"; result.textContent = ""; }
+      renderQuiz();
+    };
+    const checkQuiz = () => {
+      if(selected.some(v => v === null)){
+        if(result){ result.className = "final-result warn"; result.textContent = "Svara på alla frågor först – då blir återkopplingen rättvis."; }
+        return;
+      }
+      let score = 0;
+      qs.forEach((item, qi) => {
+        const card = finalWrap.querySelector('[data-final-card="' + qi + '"]');
+        const chosen = selected[qi];
+        const isCorrect = !!item.options[chosen][1];
+        if(isCorrect) score += 1;
+        card.querySelectorAll(".final-option").forEach(btn => {
+          const oi = num(btn.dataset.finalOpt);
+          btn.disabled = true;
+          if(item.options[oi][1]) btn.classList.add("correct");
+          if(oi === chosen && !isCorrect) btn.classList.add("wrong");
+        });
+        const fb = card.querySelector(".feedback");
+        if(fb){
+          fb.hidden = false;
+          fb.className = "feedback " + (isCorrect ? "good" : "bad");
+          fb.textContent = (isCorrect ? "Rätt! " : "Inte riktigt. ") + item.options[chosen][2];
+        }
+      });
+      checked = true;
+      if(scoreEl) scoreEl.textContent = score + " / " + qs.length;
+      const pct = Math.round(score / qs.length * 100);
+      if(result){
+        result.className = "final-result " + (score === qs.length ? "good" : (score >= qs.length / 2 ? "warn" : "bad"));
+        result.textContent = "Du fick " + score + " av " + qs.length + " (" + pct + " %). " +
+          (score === qs.length ? "Alla rätt – jämför ditt resonemang med facit." : "Läs förklaringarna och gör om quizet om du vill.");
+      }
+    };
+    const checkBtn = one("[data-final-check]");
+    const resetBtn = one("[data-final-reset]");
+    if(checkBtn) checkBtn.addEventListener("click", checkQuiz);
+    if(resetBtn) resetBtn.addEventListener("click", resetQuiz);
+    resetQuiz();
+  }
+})();
+</script>
+
+<script>
+(function(){
+  "use strict";
+  function clean(s){ return (s || "").replace(/\s+/g, " ").trim(); }
+  function taskSolved(task){
+    const type = task.dataset.taskType;
+    if(type === "quiz"){
+      const qs = Array.from(task.querySelectorAll(".quiz-question"));
+      return qs.length > 0 && qs.every(function(q){
+        const fb = q.querySelector(".feedback");
+        return fb && !fb.hidden && clean(fb.textContent).indexOf("Rätt") === 0;
+      });
+    }
+    if(type === "match"){
+      const sels = Array.from(task.querySelectorAll(".match-row select"));
+      return sels.length > 0 && sels.every(function(s){ return s.value && s.value === s.dataset.answer; });
+    }
+    if(type === "decision"){
+      const cards = Array.from(task.querySelectorAll(".decision-card"));
+      return cards.length > 0 && cards.every(function(c){
+        const fb = c.querySelector(".feedback");
+        return fb && !fb.hidden && clean(fb.textContent).indexOf("Rätt") === 0;
+      });
+    }
+    return false;
+  }
+  function taskPoints(task){
+    if(!taskSolved(task)) return 0;
+    const hints = Math.min(3, Number(task.dataset.hintsUsed || 0));
+    return Math.max(1, 3 - hints);
+  }
+  function update(){
+    const tasks = Array.from(document.querySelectorAll(".task[data-task]"));
+    let total = 0;
+    let usedHints = 0;
+    tasks.forEach(function(task){
+      const p = taskPoints(task);
+      const h = Math.min(3, Number(task.dataset.hintsUsed || 0));
+      total += p;
+      usedHints += h;
+      const badge = task.querySelector("[data-task-score]");
+      if(badge){
+        badge.textContent = p + "/3";
+        badge.className = "task-score" + (p === 3 ? " full" : (p > 0 ? " part" : ""));
+      }
+      const cell = document.querySelector('[data-score-task="' + task.dataset.task + '"]');
+      if(cell) cell.textContent = p + " / 3";
+      const hcell = document.querySelector('[data-score-hints="' + task.dataset.task + '"]');
+      if(hcell) hcell.textContent = h + " tips";
+      const solved = taskSolved(task);
+      task.querySelectorAll("[data-hint-btn]").forEach(function(btn){
+        btn.disabled = solved || btn.classList.contains("used");
+      });
+      const used = task.querySelectorAll("[data-hint-text]:not([hidden])").length;
+      const count = task.querySelector("[data-hint-count]");
+      if(count) count.textContent = used + " av 3 tips";
+    });
+    const taskTotal = document.querySelector("[data-score-total]");
+    if(taskTotal) taskTotal.textContent = total + " / 9";
+    const note = document.querySelector("[data-score-note]");
+    if(note){
+      const solved = tasks.filter(taskSolved).length;
+      note.textContent = solved + " av " + tasks.length + " uppgifter lösta · " + usedHints + " tips använda totalt. Poängen räknas när uppgiften är helt rätt.";
+    }
+    const quizText = clean(document.querySelector("[data-final-score]") ? document.querySelector("[data-final-score]").textContent : "0 / 4") || "0 / 4";
+    const quiz = parseInt((quizText.match(/\d+/) || ["0"])[0], 10);
+    const miniBoxes = Array.from(document.querySelectorAll("#miniprojekt .checklist input[type=checkbox]"));
+    const mini = miniBoxes.filter(function(b){ return b.checked; }).length;
+    const miniMax = miniBoxes.length || 4;
+    const dayMax = 9 + 4 + miniMax;
+    const dayTotal = total + quiz + mini;
+    const dt = document.querySelector("[data-day-tasks]");
+    const dq = document.querySelector("[data-day-quiz]");
+    const dm = document.querySelector("[data-day-mini]");
+    const da = document.querySelector("[data-day-total]");
+    const dmsg = document.querySelector("[data-day-message]");
+    if(dt) dt.textContent = total + " / 9";
+    if(dq) dq.textContent = quizText;
+    if(dm) dm.textContent = mini + " / " + miniMax;
+    if(da) da.textContent = dayTotal + " / " + dayMax;
+    if(dmsg){
+      dmsg.textContent = dayTotal === dayMax
+        ? "Full pott! Gå till facit och jämför dina resonemang med lösningarna."
+        : "Du har " + dayTotal + " av " + dayMax + " poäng. " + usedHints + " tips använda – försök lösa nästa uppgift utan tips.";
+    }
+  }
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest("[data-hint-btn]");
+    if(btn && !btn.disabled){
+      const task = btn.closest("[data-task]");
+      const idx = btn.dataset.hintBtn;
+      const text = task.querySelector('[data-hint-text="' + idx + '"]');
+      if(text && text.hidden){
+        text.hidden = false;
+        task.dataset.hintsUsed = String(Number(task.dataset.hintsUsed || 0) + 1);
+        btn.classList.add("used");
+        btn.disabled = true;
+      }
+    }
+    setTimeout(update, 0);
+  });
+  document.addEventListener("change", function(){ setTimeout(update, 0); });
+
+  document.querySelectorAll("[data-sim]").forEach(function(card){
+    const dataEl = card.querySelector("[data-sim-data]");
+    if(!dataEl) return;
+    const data = JSON.parse(dataEl.textContent);
+    const stateButtons = Array.from(card.querySelectorAll("[data-sim-state]"));
+    const pre = card.querySelector("[data-sim-output]");
+    const explain = card.querySelector("[data-sim-explain]");
+    const runBtn = card.querySelector("[data-sim-run]");
+    let state = "before";
+    let timer = null;
+    stateButtons.forEach(function(btn){
+      const key = btn.dataset.simState;
+      if(data[key] && data[key].label) btn.textContent = data[key].label;
+      btn.addEventListener("click", function(){ apply(key, true); });
+    });
+    if(runBtn) runBtn.addEventListener("click", function(){ apply(state, true); });
+    function setBars(values){
+      values.forEach(function(value, i){
+        const bar = card.querySelector('[data-sim-bar="' + i + '"]');
+        const val = card.querySelector('[data-sim-val="' + i + '"]');
+        if(bar){
+          const h = Math.max(0, Math.min(100, Number(value))) * 1.5;
+          bar.setAttribute("height", h);
+          bar.setAttribute("y", 180 - h);
+        }
+        if(val){ val.textContent = value; val.setAttribute("y", 180 - Math.max(0, Math.min(100, Number(value))) * 1.5 - 7); }
+      });
+    }
+    function typeLines(lines, animate){
+      if(!pre) return;
+      clearTimeout(timer);
+      pre.textContent = "";
+      if(!animate){ pre.textContent = lines.join("\n"); return; }
+      let i = 0;
+      function next(){
+        if(i >= lines.length) return;
+        pre.textContent += (i ? "\n" : "") + lines[i];
+        i += 1;
+        timer = setTimeout(next, 160);
+      }
+      next();
+    }
+    function apply(key, animate){
+      const d = data[key];
+      if(!d) return;
+      state = key;
+      stateButtons.forEach(function(btn){ btn.classList.toggle("active", btn.dataset.simState === key); });
+      setBars(d.values);
+      if(explain) explain.textContent = d.explain;
+      typeLines(d.lines, animate);
+    }
+    apply("before", false);
+  });
+
+  update();
+})();
+</script>
+
+
+<script>
+(function(){
+  "use strict";
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest("[data-task-reset]");
+    if(!btn) return;
+    const task = btn.closest("[data-task]");
+    if(!task) return;
+    task.querySelectorAll(".quiz-question").forEach(function(q){
+      delete q.dataset.answered;
+      q.querySelectorAll(".option").forEach(function(o){
+        o.disabled = false;
+        o.classList.remove("correct", "wrong");
+      });
+      const fb = q.querySelector(".feedback");
+      if(fb){ fb.hidden = true; fb.className = "feedback"; fb.textContent = ""; }
+    });
+    task.querySelectorAll(".decision-card").forEach(function(c){
+      delete c.dataset.answered;
+      c.querySelectorAll(".decision-option").forEach(function(o){
+        o.disabled = false;
+        o.classList.remove("correct", "wrong");
+      });
+      const fb = c.querySelector(".feedback");
+      if(fb){ fb.hidden = true; fb.className = "feedback"; fb.textContent = ""; }
+    });
+    task.querySelectorAll(".match-row select").forEach(function(s){
+      s.value = "";
+      s.classList.remove("correct", "wrong");
+    });
+    const mf = task.querySelector(".match-box .feedback");
+    if(mf){ mf.hidden = true; mf.className = "feedback"; mf.textContent = ""; }
+    setTimeout(function(){ document.dispatchEvent(new Event("change")); }, 0);
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  "use strict";
+  function el(tag, text, cls){ const e=document.createElement(tag); if(text!==undefined) e.textContent=text; if(cls) e.className=cls; return e; }
+  document.querySelectorAll("[data-code-lab]").forEach(function(card){
+    const dataEl=card.querySelector("[data-code-data]");
+    if(!dataEl) return;
+    const data=JSON.parse(dataEl.textContent);
+    const buttons=Array.from(card.querySelectorAll("[data-code-step]"));
+    const snippet=card.querySelector("[data-code-snippet]");
+    const explain=card.querySelector("[data-code-step-explain]");
+    const output=card.querySelector("[data-code-output]");
+    const status=card.querySelector("[data-code-status]");
+    const fixBtn=card.querySelector("[data-code-fix]");
+    let runId=0;
+    function step(i){
+      buttons.forEach(function(b,j){ b.classList.toggle("active", i===j); });
+      const s=data.steps[i];
+      snippet.textContent=s.code;
+      explain.replaceChildren(el("strong", s.label), el("p", s.explain));
+    }
+    function run(kind){
+      const id=++runId;
+      output.classList.toggle("error", kind==="error");
+      output.textContent="";
+      status.textContent="Kör...";
+      if(fixBtn) fixBtn.hidden=true;
+      setTimeout(function(){
+        if(id!==runId) return;
+        if(kind==="success"){
+          output.textContent=data.success.join("\n");
+          status.textContent="Klart. Jämför med koden och förklaringen till vänster.";
+        } else if(kind==="error"){
+          output.textContent=data.error.join("\n");
+          status.textContent="Ett vanligt fel. Läs förklaringen nedan och tryck på Visa rätt output.";
+          if(fixBtn) fixBtn.hidden=false;
+        } else {
+          output.textContent=data.fix.join("\n");
+          status.textContent="Så här ser det ut när felet är åtgärdat.";
+        }
+      }, 280);
+    }
+    buttons.forEach(function(b,i){ b.addEventListener("click", function(){ step(i); }); });
+    const runBtn=card.querySelector("[data-code-run]");
+    const errBtn=card.querySelector("[data-code-error]");
+    if(runBtn) runBtn.addEventListener("click", function(){ run("success"); });
+    if(errBtn) errBtn.addEventListener("click", function(){ run("error"); });
+    if(fixBtn) fixBtn.addEventListener("click", function(){ run("fix"); });
+    if(buttons.length) step(0);
+    output.textContent="Tryck på Kör koden för att se output.";
+  });
+
+  const termsEl=document.querySelector("[data-terms]");
+  if(termsEl){
+    const terms=JSON.parse(termsEl.textContent);
+    const buttons=Array.from(document.querySelectorAll(".term-btn"));
+    const box=document.querySelector("[data-term-explain]");
+    function showTerm(i){
+      buttons.forEach(function(b,j){ b.classList.toggle("active", i===j); });
+      const t=terms[i];
+      box.replaceChildren(el("strong", t[0]), el("p", t[1]), el("p", "Exempel: " + t[2], "term-example"));
+    }
+    buttons.forEach(function(b){ b.addEventListener("click", function(){ showTerm(Number(b.dataset.term)); }); });
+    if(buttons.length) showTerm(0);
+  }
+
+  const body=document.querySelector("[data-table-body]");
+  if(body){
+    body.addEventListener("click", function(e){
+      if(e.target.closest("input")) return;
+      const tr=e.target.closest("tr");
+      if(!tr) return;
+      const cells=tr.querySelectorAll("td");
+      if(cells.length<4) return;
+      const input=tr.querySelector("input[data-score]");
+      const name=cells[0].innerText.trim();
+      const cat=cells[1].innerText.trim();
+      const score=Number(input ? input.value : 0);
+      const note=cells[3].innerText.trim();
+      const level=score>=80?"grön":(score>=50?"gul":"röd");
+      const why=score>=80?"Raden är redo. Poängen ligger över 80.":(score>=50?"Raden är osäker. Poängen ligger mellan 50 och 79.":"Raden är en risk. Poängen ligger under 50.");
+      const box=document.querySelector("[data-row-explain]");
+      if(!box) return;
+      box.replaceChildren(
+        el("strong", name + " · " + cat),
+        el("p", "Poäng " + score + " → " + level + ". " + why),
+        el("p", note)
+      );
+    });
+  }
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+  var C = {
+    ink: "#f8f4ff", muted: "#a99fbe", grid: "rgba(255,255,255,.09)",
+    teal: "#6ee7d8", orange: "#f7b267", purple: "#c084fc",
+    red: "#ff7a90", green: "#7ee787", dark: "#0b0810"
+  };
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function money(v) { return "$" + Number(v).toFixed(2); }
+  function pct(v) { return Math.round(v) + "%"; }
+  function num(v, d) { return Number(v).toFixed(d == null ? 1 : d); }
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function h(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function seed(n) {
+    var x = Math.sin(n * 12.9898 + 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  }
+  function setupCanvas(cv) {
+    var W = 760, H = 330;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    var ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, W: W, H: H };
+  }
+  function drawGrid(ctx, x, y, w, hh, cols, rows) {
+    ctx.save();
+    ctx.strokeStyle = C.grid;
+    ctx.lineWidth = 1;
+    for (var i = 0; i <= cols; i++) {
+      var xx = x + (w * i) / cols;
+      ctx.beginPath(); ctx.moveTo(xx, y); ctx.lineTo(xx, y + hh); ctx.stroke();
+    }
+    for (var j = 0; j <= rows; j++) {
+      var yy = y + (hh * j) / rows;
+      ctx.beginPath(); ctx.moveTo(x, yy); ctx.lineTo(x + w, yy); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function axis(ctx, text, x, y, align, color, size) {
+    ctx.save();
+    ctx.fillStyle = color || C.muted;
+    ctx.font = (size || 9) + "px ui-sans-serif,system-ui,Segoe UI,Arial,sans-serif";
+    ctx.textAlign = align || "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+  function legend(lab, items) {
+    var box = lab.querySelector("[data-wow-legend]");
+    if (!box) return;
+    box.innerHTML = "";
+    items.forEach(function (it) {
+      var s = h("span");
+      var dot = h("i");
+      dot.style.background = it.color;
+      dot.style.color = it.color;
+      s.appendChild(dot);
+      s.appendChild(document.createTextNode(it.label));
+      box.appendChild(s);
+    });
+  }
+  function renderMetrics(lab, cfg, values) {
+    var box = lab.querySelector("[data-wow-metrics]");
+    box.innerHTML = "";
+    cfg.metrics.forEach(function (m) {
+      var d = h("div", "wow-metric");
+      var v = values[m.key];
+      if (m.warnBelow != null && Number(v) < m.warnBelow) d.classList.add("warn");
+      if (m.warnAbove != null && Number(v) > m.warnAbove) d.classList.add("bad");
+      d.appendChild(h("span", null, m.label));
+      var b = h("b", null, formatMetric(v, m.kind));
+      d.appendChild(b);
+      box.appendChild(d);
+    });
+  }
+  function formatMetric(v, kind) {
+    if (v == null) return "–";
+    if (kind === "usd") return money(v);
+    if (kind === "usd3") return "$" + Number(v).toFixed(3);
+    if (kind === "pct") return pct(v);
+    if (kind === "sec") return num(v, 1) + " s";
+    if (kind === "ms") return Math.round(v) + " ms";
+    if (kind === "mb") return Math.round(v).toLocaleString("sv-SE") + " MB";
+    if (kind === "int") return Math.round(v).toLocaleString("sv-SE");
+    if (kind === "tokens") return Math.round(v).toLocaleString("sv-SE");
+    return String(v);
+  }
+
+  function buildControls(lab, cfg, state) {
+    var box = lab.querySelector("[data-wow-controls]");
+    box.innerHTML = "";
+    (cfg.knobs || []).forEach(function (k) {
+      var wrap = h("div", "wow-control");
+      if (k.type === "toggle") {
+        var label = h("label", "wow-switch");
+        var input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = !!state[k.id];
+        input.setAttribute("data-wow-knob", k.id);
+        input.id = "wow-" + cfg.id + "-" + k.id;
+        label.appendChild(input);
+        label.appendChild(h("span", "wow-track"));
+        label.appendChild(h("span", null, k.label));
+        wrap.appendChild(label);
+      } else if (k.type === "select") {
+        var lab2 = h("label");
+        var span = h("span", null, k.label);
+        lab2.appendChild(span);
+        var sel = document.createElement("select");
+        sel.className = "wow-select";
+        sel.setAttribute("data-wow-knob", k.id);
+        sel.id = "wow-" + cfg.id + "-" + k.id;
+        (k.options || []).forEach(function (o) {
+          var op = document.createElement("option");
+          op.value = typeof o === "string" ? o : o.value;
+          op.textContent = typeof o === "string" ? o : o.label;
+          sel.appendChild(op);
+        });
+        sel.value = state[k.id];
+        wrap.appendChild(lab2);
+        wrap.appendChild(sel);
+      } else {
+        var l3 = h("label");
+        l3.appendChild(h("span", null, k.label));
+        var out = document.createElement("output");
+        out.setAttribute("data-wow-output", k.id);
+        out.textContent = state[k.id] + (k.unit ? " " + k.unit : "");
+        l3.appendChild(out);
+        var r = document.createElement("input");
+        r.type = "range";
+        r.className = "wow-range";
+        r.min = k.min; r.max = k.max; r.step = k.step || 1;
+        r.value = state[k.id];
+        r.setAttribute("data-wow-knob", k.id);
+        r.id = "wow-" + cfg.id + "-" + k.id;
+        wrap.appendChild(l3);
+        wrap.appendChild(r);
+      }
+      box.appendChild(wrap);
+    });
+  }
+  function syncControlValues(lab, state, cfg) {
+    (cfg.knobs || []).forEach(function (k) {
+      var input = lab.querySelector('[data-wow-knob="' + k.id + '"]');
+      if (!input) return;
+      if (k.type === "toggle") input.checked = !!state[k.id];
+      else input.value = state[k.id];
+      var out = lab.querySelector('[data-wow-output="' + k.id + '"]');
+      if (out) out.textContent = state[k.id] + (k.unit ? " " + k.unit : "");
+    });
+  }
+
+  function computeFlow(cfg, state) {
+    var volume = Number(state.volume != null ? state.volume : (cfg.volumeRef || 40));
+    var workers = Math.max(1, Number(state.workers != null ? state.workers : 4));
+    var cache = !!state.cache;
+    var ref = cfg.volumeRef || 40;
+    var stages = (cfg.stages || []).map(function (s) {
+      var t = s.base;
+      if (s.load) t *= 1 + s.load * (volume / ref - 1);
+      if (s.parallel) t /= workers;
+      if (cache && s.cacheable) t *= 0.76;
+      return { id: s.id, label: s.label, t: Math.max(0.05, t), base: s.base };
+    });
+    var runtime = stages.reduce(function (a, s) { return a + s.t; }, 0);
+    var bottleneck = stages.reduce(function (a, b) { return a.t > b.t ? a : b; }, stages[0]);
+    var cost = 0.02 + runtime * workers * (cfg.costRate || 0.05) + workers * (cfg.workerFee || 0);
+    var success = null;
+    if (cfg.successBase != null) {
+      success = clamp(cfg.successBase
+        - Math.max(0, volume - workers * 2) * (cfg.successPenalty || 2)
+        - Math.max(0, workers - (cfg.successMaxWorkers || 4)) * 2, 35, 99.5);
+    }
+    var vals = { runtime: runtime, cost: cost, bottleneck: bottleneck.label };
+    if (success != null) vals.success = success;
+    var parts = ["Flaskhals: " + bottleneck.label + " (" + num(bottleneck.t) + " s)."];
+    parts.push(workers + " workers ger " + num(runtime) + " s och " + money(cost) + ".");
+    if (success != null) parts.push("Success: " + pct(success) + ".");
+    if (cfg.budget != null) parts.push(cost <= cfg.budget ? "Inom budget " + money(cfg.budget) + "." : "Över budget " + money(cfg.budget) + ".");
+    var tone = "good";
+    if (cfg.target) {
+      if (cfg.target.runtime != null) {
+        parts.push(runtime <= cfg.target.runtime ? "Tidsmålet " + cfg.target.runtime + " s är nått." : "Tidsmålet " + cfg.target.runtime + " s är inte nått.");
+        if (runtime > cfg.target.runtime) tone = "warn";
+      }
+      if (cfg.target.cost != null) {
+        parts.push(cost <= cfg.target.cost ? "Kostnadsmålet " + money(cfg.target.cost) + " är nått." : "Kostnadsmålet " + money(cfg.target.cost) + " är inte nått.");
+        if (cost > cfg.target.cost) tone = "warn";
+      }
+      if (cfg.target.success != null) {
+        parts.push(success >= cfg.target.success ? "Successmålet " + pct(cfg.target.success) + " är nått." : "Successmålet " + pct(cfg.target.success) + " är inte nått.");
+        if (success < cfg.target.success) tone = "warn";
+      }
+    }
+    if (cfg.budget != null && cost > cfg.budget) tone = "bad";
+    return { values: vals, meta: { stages: stages, workers: workers }, insight: parts.join(" "), tone: tone };
+  }
+
+  function drawFlow(lab, cfg, meta) {
+    var svgEl = lab.querySelector("[data-wow-svg]");
+    svgEl.innerHTML = "";
+    var positions = cfg.positions || [[52, 58], [286, 188], [500, 58], [606, 188]];
+    var nodeW = cfg.nodeW || 150, nodeH = 70;
+    var maxT = Math.max.apply(null, meta.stages.map(function (s) { return s.t; }));
+    var defs = svg("defs");
+    var glow = svg("filter", { id: "wowGlow" });
+    glow.appendChild(svg("feGaussianBlur", { stdDeviation: "4", result: "blur" }));
+    var merge = svg("feMerge");
+    merge.appendChild(svg("feMergeNode", { in: "blur" }));
+    merge.appendChild(svg("feMergeNode", { in: "SourceGraphic" }));
+    glow.appendChild(merge);
+    defs.appendChild(glow);
+    svgEl.appendChild(defs);
+
+    var centers = {};
+    meta.stages.forEach(function (s, i) {
+      var p = positions[i] || [50 + i * 180, 80];
+      centers[s.id] = { x: p[0] + nodeW / 2, y: p[1] + nodeH / 2, x1: p[0], y1: p[1] };
+    });
+
+    (cfg.edges || []).forEach(function (e) {
+      var a = centers[e[0]], b = centers[e[1]];
+      if (!a || !b) return;
+      var x1 = a.x1 + nodeW, y1 = a.y, x2 = b.x1, y2 = b.y;
+      var mx = (x1 + x2) / 2;
+      var d = "M " + x1 + " " + y1 + " C " + mx + " " + y1 + ", " + mx + " " + y2 + ", " + x2 + " " + y2;
+      var path = svg("path", { d: d, class: "wow-edge hot" });
+      svgEl.appendChild(path);
+      var packet = svg("circle", { r: 2.8, class: "wow-packet" });
+      var motion = svg("animateMotion", { dur: (1.8 + (e[0].length % 3) * 0.35) + "s", repeatCount: "indefinite", path: d });
+      packet.appendChild(motion);
+      svgEl.appendChild(packet);
+    });
+
+    meta.stages.forEach(function (s, i) {
+      var p = positions[i] || [50 + i * 180, 80];
+      var isB = s.id === (meta.stages.reduce(function (a, b) { return a.t > b.t ? a : b; }).id);
+      var g = svg("g", { class: "wow-node" });
+      g.appendChild(svg("rect", {
+        x: p[0], y: p[1], width: nodeW, height: nodeH, rx: 12,
+        fill: isB ? "rgba(247,178,103,.16)" : "rgba(110,231,216,.105)",
+        stroke: isB ? "rgba(247,178,103,.85)" : "rgba(110,231,216,.55)",
+        "stroke-width": isB ? 1.8 : 1.2
+      }));
+      if (isB) g.appendChild(svg("rect", {
+        x: p[0] - 2, y: p[1] - 2, width: nodeW + 4, height: nodeH + 4, rx: 14,
+        fill: "none", stroke: "rgba(247,178,103,.28)", "stroke-width": 5, filter: "url(#wowGlow)"
+      }));
+      g.appendChild(svg("text", { x: p[0] + 12, y: p[1] + 20, class: "wow-node-sub" }, "STEG " + (i + 1)));
+      g.appendChild(svg("text", { x: p[0] + 12, y: p[1] + 38, class: "wow-node-label" }, s.label));
+      g.appendChild(svg("text", { x: p[0] + 12, y: p[1] + 55, class: "wow-node-time" }, num(s.t) + " s"));
+      var barW = Math.max(4, (nodeW - 24) * (s.t / maxT));
+      g.appendChild(svg("rect", { x: p[0] + 12, y: p[1] + 60, width: nodeW - 24, height: 4, rx: 2, fill: "rgba(255,255,255,.12)" }));
+      g.appendChild(svg("rect", { x: p[0] + 12, y: p[1] + 60, width: barW, height: 4, rx: 2, fill: isB ? C.orange : C.teal }));
+      svgEl.appendChild(g);
+    });
+    svgEl.setAttribute("aria-label", cfg.aria || "Interaktivt flödesdiagram");
+    legend(lab, [
+      { label: "Steg i flödet", color: C.teal },
+      { label: "Flaskhals", color: C.orange },
+      { label: "Animerat dataflöde", color: C.purple }
+    ]);
+  }
+
+  function computeLineage(cfg, state) {
+    var contract = !!state.contract;
+    var change = state.change || "Byt namn på kolumn";
+    var nodes = cfg.nodes.map(function (n) { return { id: n.id, label: n.label, report: !!n.report, x: n.x, y: n.y }; });
+    var affected = {};
+    if (contract) {
+      affected.staging = "warn";
+    } else {
+      nodes.forEach(function (n) { if (n.id !== "raw") affected[n.id] = "bad"; });
+    }
+    nodes.forEach(function (n) {
+      if (n.id === "raw") n.status = "ok";
+      else if (affected[n.id]) n.status = affected[n.id];
+      else n.status = "ok";
+    });
+    var broken = contract ? 0 : nodes.filter(function (n) { return n.report && n.status === "bad"; }).length;
+    var vals = { broken: broken, detect: contract ? "1 min" : "3 dagar", risk: contract ? "Låg" : "Hög" };
+    var insight = contract
+      ? "Kontraktet fångar \"" + change.toLowerCase() + "\" i staging på en minut. Mart, dashboard och churn-modell kör vidare på ett känt schema."
+      : "\"" + change + "\" utan kontrakt slår rakt igenom staging och vidare till " + broken + " rapporter/modeller. Upptäckt först efter tre dagar.";
+    return { values: vals, meta: { nodes: nodes, contract: contract, change: change }, insight: insight, tone: contract ? "good" : "bad" };
+  }
+
+  function drawLineage(lab, cfg, meta) {
+    var svgEl = lab.querySelector("[data-wow-svg]");
+    svgEl.innerHTML = "";
+    var nodes = meta.nodes;
+    var color = { ok: C.teal, warn: C.orange, bad: C.red };
+    var byId = {};
+    nodes.forEach(function (n) { byId[n.id] = n; });
+    var nodeW = 138, nodeH = 52;
+    (cfg.edges || []).forEach(function (e) {
+      var a = byId[e[0]], b = byId[e[1]];
+      if (!a || !b) return;
+      var x1 = a.x + nodeW, y1 = a.y + nodeH / 2, x2 = b.x, y2 = b.y + nodeH / 2;
+      var mx = (x1 + x2) / 2;
+      var d = "M " + x1 + " " + y1 + " C " + mx + " " + y1 + ", " + mx + " " + y2 + ", " + x2 + " " + y2;
+      var cls = "wow-edge";
+      if (b.status === "bad") cls += " broken";
+      else if (meta.contract && b.id === "staging") cls += " hot";
+      svgEl.appendChild(svg("path", { d: d, class: cls }));
+      if (b.status === "bad") {
+        var packet = svg("circle", { r: 2.6, fill: C.red, opacity: .9 });
+        packet.appendChild(svg("animateMotion", { dur: "1.7s", repeatCount: "indefinite", path: d }));
+        svgEl.appendChild(packet);
+      }
+    });
+    nodes.forEach(function (n) {
+      var g = svg("g", { class: "wow-node" });
+      var col = color[n.status] || C.teal;
+      g.appendChild(svg("rect", {
+        x: n.x, y: n.y, width: nodeW, height: nodeH, rx: 11,
+        fill: n.status === "bad" ? "rgba(255,122,144,.15)" : n.status === "warn" ? "rgba(247,178,103,.13)" : "rgba(110,231,216,.10)",
+        stroke: col, "stroke-width": n.status === "ok" ? 1.1 : 1.8
+      }));
+      g.appendChild(svg("circle", { cx: n.x + 12, cy: n.y + 15, r: 3.6, fill: col }));
+      g.appendChild(svg("text", { x: n.x + 22, y: n.y + 19, class: "wow-node-label" }, n.label));
+      g.appendChild(svg("text", { x: n.x + 12, y: n.y + 38, class: "wow-node-sub" }, n.id === "raw" ? "källa" : n.report ? "rapport / modell" : "mellanlager"));
+      svgEl.appendChild(g);
+    });
+    if (meta.contract) {
+      var st = byId.staging;
+      svgEl.appendChild(svg("rect", {
+        x: st.x - 8, y: st.y - 8, width: nodeW + 16, height: nodeH + 16, rx: 15,
+        fill: "none", stroke: C.teal, "stroke-width": 1.5, "stroke-dasharray": "5 5"
+      }));
+      svgEl.appendChild(svg("text", { x: st.x + 8, y: st.y - 14, class: "wow-node-sub", fill: C.teal }, "DATAKONTRAKT"));
+    }
+    svgEl.setAttribute("aria-label", cfg.aria || "Interaktivt dataarvsdiagram");
+    legend(lab, [
+      { label: "Frisk", color: C.teal },
+      { label: "Fångad i staging", color: C.orange },
+      { label: "Påverkad rapport", color: C.red }
+    ]);
+  }
+
+  function computeCurve(cfg, state) {
+    if (cfg.variant === "queue") {
+      var rps = Number(state.rps != null ? state.rps : 120);
+      var replicas = Math.max(1, Number(state.replicas != null ? state.replicas : 2));
+      function p95(r, rep) { return 35 + Math.pow(r / (rep * 90), 2.1) * 120; }
+      function err(r, rep) { return clamp((r / (rep * 110) - 1) * 42, 0, 60); }
+      var xs = [], ps = [], es = [];
+      for (var r = 10; r <= 500; r += 10) { xs.push(r); ps.push(p95(r, replicas)); es.push(err(r, replicas)); }
+      var currentP95 = p95(rps, replicas), currentErr = err(rps, replicas);
+      var minRep = 8;
+      for (var rep = 1; rep <= 8; rep++) { if (p95(300, rep) <= 300 && err(300, rep) <= 1) { minRep = rep; break; } }
+      var valsQ = { p95: currentP95, error: currentErr, cost: replicas * 0.04 + rps * 0.00002 };
+      var insightQ = currentP95 <= 300 && currentErr <= 1
+        ? "Vid " + rps + " RPS och " + replicas + " repliker är p95 " + Math.round(currentP95) + " ms. SLO:n på 300 ms håller."
+        : "Vid " + rps + " RPS och " + replicas + " repliker blir p95 " + Math.round(currentP95) + " ms och " + Math.round(currentErr) + "% fel. Prova fler repliker.";
+      insightQ += " För 300 RPS krävs minst " + minRep + " repliker för p95 under 300 ms.";
+      return {
+        values: valsQ,
+        meta: { xs: xs, primary: ps, secondary: es, currentX: rps, currentY: currentP95, yMax: 600, secondaryMax: 60, threshold: 300, xLabel: "RPS", yLabel: "p95 (ms)", secondaryLabel: "fel (%)" },
+        insight: insightQ, tone: currentP95 <= 300 && currentErr <= 1 ? "good" : "warn"
+      };
+    }
+    var days = Number(state.days != null ? state.days : 45);
+    var retrain = !!state.retrain;
+    var xsD = [], acc = [], drift = [];
+    for (var d = 0; d <= 90; d++) {
+      var phase = retrain ? d % 30 : d;
+      xsD.push(d);
+      acc.push(clamp(0.95 - 0.38 * Math.pow(phase / 90, 1.45), 0.4, 1));
+      drift.push(clamp(0.04 + 0.82 * Math.pow(d / 90, 1.25), 0, 1));
+    }
+    var curAcc = acc[Math.round(days)], curDrift = drift[Math.round(days)];
+    var alert = null;
+    for (var k = 0; k < acc.length; k++) { if (acc[k] < 0.85) { alert = k; break; } }
+    var valsD = { accuracy: curAcc * 100, drift: curDrift * 100, alert: alert == null ? "Ingen" : "Dag " + alert };
+    var insightD = retrain
+      ? "Omträning var 30:e dag håller accuracy över 85%. Datadriften fortsätter ändå uppåt – larmet ska följa både accuracy och drift."
+      : (alert == null ? "Accuracy ligger kvar över 85%." : "Utan omträning faller accuracy under 85% kring dag " + alert + ". Efter 90 dagar är modellen märkbart sämre.");
+    return {
+      values: valsD,
+      meta: { xs: xsD, primary: acc, secondary: drift, currentX: days, currentY: curAcc, yMax: 1, secondaryMax: 1, threshold: 0.85, xLabel: "Dagar i produktion", yLabel: "Accuracy", secondaryLabel: "Datadrift" },
+      insight: insightD, tone: alert == null ? "good" : (curAcc < 0.85 ? "bad" : "warn")
+    };
+  }
+
+  function drawCurve(lab, cfg, meta) {
+    var cv = lab.querySelector("[data-wow-canvas]");
+    var o = setupCanvas(cv), ctx = o.ctx, W = o.W, H = o.H;
+    var l = 50, r = 54, t = 22, b = 34;
+    var pw = W - l - r, ph = H - t - b;
+    drawGrid(ctx, l, t, pw, ph, 5, 4);
+    var xMin = meta.xs[0], xMax = meta.xs[meta.xs.length - 1];
+    function X(v) { return l + (v - xMin) / (xMax - xMin) * pw; }
+    function Y(v) { return t + ph - clamp(v / meta.yMax, 0, 1) * ph; }
+    function Y2(v) { return t + ph - clamp(v / meta.secondaryMax, 0, 1) * ph; }
+    for (var i = 0; i <= 4; i++) {
+      var f = i / 4;
+      var yv = meta.yMax * f;
+      axis(ctx, meta.yMax === 1 ? yv.toFixed(2) : Math.round(yv), l - 7, t + ph - f * ph, "right");
+      if (meta.secondaryMax !== meta.yMax) axis(ctx, Math.round(meta.secondaryMax * f), l + pw + 7, t + ph - f * ph, "left", C.orange);
+    }
+    for (var j = 0; j <= 4; j++) {
+      var xv = xMin + (xMax - xMin) * (j / 4);
+      axis(ctx, Math.round(xv), l + pw * (j / 4), t + ph + 16, "center");
+    }
+    axis(ctx, meta.xLabel, l + pw / 2, H - 8, "center", C.muted, 9);
+    axis(ctx, meta.yLabel, l, 10, "left", C.muted, 9);
+    if (meta.secondaryLabel) axis(ctx, meta.secondaryLabel, l + pw, 10, "right", C.orange, 9);
+    if (meta.threshold != null) {
+      var ty = Y(meta.threshold);
+      ctx.save();
+      ctx.strokeStyle = "rgba(255,122,144,.8)";
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath(); ctx.moveTo(l, ty); ctx.lineTo(l + pw, ty); ctx.stroke();
+      ctx.restore();
+      axis(ctx, "gräns " + (meta.yMax === 1 ? meta.threshold.toFixed(2) : meta.threshold), l + 5, ty - 8, "left", C.red, 8);
+    }
+    function line(vals, yFn, color, fill, dash) {
+      ctx.save();
+      ctx.beginPath();
+      vals.forEach(function (v, i) { var x = X(meta.xs[i]), y = yFn(v); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+      ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.lineJoin = "round"; ctx.lineCap = "round";
+      if (dash) ctx.setLineDash(dash);
+      ctx.stroke();
+      if (fill) {
+        ctx.lineTo(X(meta.xs[meta.xs.length - 1]), t + ph);
+        ctx.lineTo(X(meta.xs[0]), t + ph);
+        ctx.closePath();
+        var grad = ctx.createLinearGradient(0, t, 0, t + ph);
+        grad.addColorStop(0, fill); grad.addColorStop(1, "rgba(110,231,216,0)");
+        ctx.fillStyle = grad; ctx.fill();
+      }
+      ctx.restore();
+    }
+    line(meta.secondary, Y2, C.orange, null, [4, 4]);
+    line(meta.primary, Y, C.teal, "rgba(110,231,216,.20)", null);
+    var cx = X(meta.currentX), cy = Y(meta.currentY);
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.28)"; ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(cx, t); ctx.lineTo(cx, t + ph); ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = C.teal; ctx.shadowColor = C.teal; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.arc(cx, cy, 4.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = "#0b0810"; ctx.strokeStyle = C.teal; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    cv.setAttribute("aria-label", cfg.aria || "Interaktivt linjediagram");
+    legend(lab, cfg.legend || [
+      { label: meta.yLabel, color: C.teal },
+      { label: meta.secondaryLabel || "", color: C.orange }
+    ]);
+  }
+
+  function clusterPoints(clusters) {
+    var pts = [];
+    clusters.forEach(function (cl, ci) {
+      for (var i = 0; i < cl.n; i++) {
+        var a = seed(ci * 97 + i * 3 + 1) * Math.PI * 2;
+        var rad = Math.sqrt(seed(ci * 97 + i * 3 + 2)) * (cl.spread || 0.14);
+        pts.push({
+          x: clamp(cl.cx + Math.cos(a) * rad, 0.03, 0.97),
+          y: clamp(cl.cy + Math.sin(a) * rad * 0.82, 0.04, 0.96),
+          label: cl.label, color: cl.color, cls: cl.cls
+        });
+      }
+    });
+    return pts;
+  }
+
+  function computeScatter(cfg, state) {
+    if (cfg.variant === "boundary") {
+      var w1 = Number(state.w1 != null ? state.w1 : 1);
+      var w2 = Number(state.w2 != null ? state.w2 : 1);
+      var ptsB = clusterPoints(cfg.clusters);
+      var tp = 0, fp = 0, tn = 0, fn = 0;
+      ptsB.forEach(function (p) {
+        var pred = (w1 * (p.x - 0.5) + w2 * (0.5 - p.y)) > 0 ? 1 : 0;
+        p.pred = pred;
+        if (p.cls === 1 && pred === 1) tp++;
+        else if (p.cls === 0 && pred === 1) fp++;
+        else if (p.cls === 0 && pred === 0) tn++;
+        else fn++;
+      });
+      var accB = (tp + tn) / ptsB.length * 100;
+      var precB = tp + fp ? tp / (tp + fp) * 100 : 0;
+      var recB = tp + fn ? tp / (tp + fn) * 100 : 0;
+      var valsB = { accuracy: accB, precision: precB, recall: recB };
+      var insightB = "Vikterna " + num(w1) + " / " + num(w2) + " ger " + pct(accB) + " accuracy. " +
+        (accB >= 85 ? "Modellen hittar ett tydligt mönster." : "Modellen blandar ihop kunderna. Prova att vikta tenure och spend mer lika.");
+      return { values: valsB, meta: { points: ptsB, variant: "boundary", w1: w1, w2: w2 }, insight: insightB, tone: accB >= 85 ? "good" : "warn" };
+    }
+    var chunk = Number(state.chunk != null ? state.chunk : 600);
+    var topk = Number(state.topk != null ? state.topk : 3);
+    var pts = clusterPoints(cfg.clusters);
+    var q = cfg.query;
+    pts.forEach(function (p) { p.dist = Math.hypot(p.x - q.x, p.y - q.y); });
+    var sorted = pts.slice().sort(function (a, b) { return a.dist - b.dist; });
+    var top = sorted.slice(0, topk);
+    var score = clamp(95 - Math.abs(chunk - (cfg.idealChunk || 600)) / (cfg.idealChunk || 600) * 24 + (topk >= 2 ? 3 : 0) - Math.max(0, topk - 4) * 3, 40, 98);
+    var tokens = Math.round(topk * chunk * 0.85);
+    var valsR = { hit: score, context: tokens, cost: tokens / 1000 * 0.002 };
+    var topClusters = {};
+    top.forEach(function (p) { topClusters[p.label] = (topClusters[p.label] || 0) + 1; });
+    var mix = Object.keys(topClusters).map(function (k) { return topClusters[k] + " " + k; }).join(", ");
+    var insightR = "Top-" + topk + " hämtar " + mix + ". " + Math.round(score) + "% träffsäkerhet med " + tokens + " tokens kontext.";
+    if (chunk < 400) insightR += " Små chunks ger mer brus.";
+    if (chunk > 850) insightR += " Stora chunks ger mer kontext men också mer brus.";
+    return { values: valsR, meta: { points: pts, query: q, top: top, variant: "rag", topk: topk }, insight: insightR, tone: score >= 90 ? "good" : "warn" };
+  }
+
+  function drawScatter(lab, cfg, meta) {
+    var cv = lab.querySelector("[data-wow-canvas]");
+    var o = setupCanvas(cv), ctx = o.ctx, W = o.W, H = o.H;
+    var l = 34, r = 22, t = 20, b = 30;
+    var pw = W - l - r, ph = H - t - b;
+    function X(v) { return l + v * pw; }
+    function Y(v) { return t + (1 - v) * ph; }
+    drawGrid(ctx, l, t, pw, ph, 5, 4);
+    axis(ctx, "dimension 1", l + pw / 2, H - 7, "center", C.muted, 9);
+    axis(ctx, "dimension 2", l - 8, t + ph / 2, "right", C.muted, 9);
+    if (meta.variant === "rag") {
+      (cfg.clusters || []).forEach(function (cl) {
+        axis(ctx, cl.label, X(cl.cx), Y(cl.cy) - 18, "center", cl.color, 9);
+      });
+      meta.points.forEach(function (p) {
+        ctx.save();
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 3.2, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+      meta.top.forEach(function (p, i) {
+        var x = X(p.x), y = Y(p.y), qx = X(meta.query.x), qy = Y(meta.query.y);
+        ctx.save();
+        ctx.strokeStyle = "rgba(110,231,216,.5)";
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath(); ctx.moveTo(qx, qy); ctx.lineTo(x, y); ctx.stroke();
+        ctx.restore();
+        ctx.save();
+        ctx.strokeStyle = C.teal; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(x, y, 7 + i * 0.8, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+      });
+      var qx2 = X(meta.query.x), qy2 = Y(meta.query.y);
+      ctx.save();
+      ctx.fillStyle = C.orange; ctx.shadowColor = C.orange; ctx.shadowBlur = 14;
+      star(ctx, qx2, qy2, 5, 8, 4);
+      ctx.fill();
+      ctx.restore();
+      axis(ctx, "query", qx2 + 10, qy2 - 10, "left", C.orange, 9);
+      legend(lab, (cfg.clusters || []).map(function (cl) { return { label: cl.label, color: cl.color }; }).concat([{ label: "Query", color: C.orange }, { label: "Top-k", color: C.teal }]));
+    } else {
+      if (meta.w2 !== 0) {
+        var y0 = 0.5 + (meta.w1 / meta.w2) * (0 - 0.5);
+        var y1 = 0.5 + (meta.w1 / meta.w2) * (1 - 0.5);
+        ctx.save();
+        ctx.beginPath(); ctx.rect(l, t, pw, ph); ctx.clip();
+        ctx.strokeStyle = C.teal; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+        ctx.beginPath(); ctx.moveTo(X(0), Y(y0)); ctx.lineTo(X(1), Y(y1)); ctx.stroke();
+        ctx.restore();
+      }
+      meta.points.forEach(function (p) {
+        ctx.save();
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 3.4, 0, Math.PI * 2); ctx.fill();
+        if (p.pred !== p.cls) {
+          ctx.strokeStyle = C.red; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 6, 0, Math.PI * 2); ctx.stroke();
+        }
+        ctx.restore();
+      });
+      legend(lab, (cfg.clusters || []).map(function (cl) { return { label: cl.label, color: cl.color }; }).concat([{ label: "Beslutskant", color: C.teal }, { label: "Felklassad", color: C.red }]));
+    }
+    cv.setAttribute("aria-label", cfg.aria || "Interaktivt spridningsdiagram");
+  }
+  function star(ctx, cx, cy, spikes, outer, inner) {
+    var rot = -Math.PI / 2, step = Math.PI / spikes;
+    ctx.beginPath();
+    for (var i = 0; i < spikes * 2; i++) {
+      var r = i % 2 === 0 ? outer : inner;
+      var x = cx + Math.cos(rot + i * step) * r;
+      var y = cy + Math.sin(rot + i * step) * r;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
+  function schedule(stages, workers) {
+    var byId = {}, ends = {}, done = {}, free = [];
+    stages.forEach(function (s) { byId[s.id] = s; });
+    for (var i = 0; i < workers; i++) free.push(0);
+    var remaining = stages.slice(), guard = 0;
+    while (remaining.length && guard++ < 200) {
+      var ready = remaining.filter(function (s) { return s.deps.every(function (d) { return done[d]; }); });
+      if (!ready.length) break;
+      ready.forEach(function (s) {
+        var start = Math.max.apply(null, [0].concat(s.deps.map(function (d) { return ends[d]; })));
+        var wi = 0;
+        for (var j = 0; j < free.length; j++) if (free[j] < free[wi]) wi = j;
+        start = Math.max(start, free[wi]);
+        s.start = start; s.end = start + s.dur;
+        ends[s.id] = s.end; done[s.id] = true; free[wi] = s.end;
+        remaining = remaining.filter(function (x) { return x.id !== s.id; });
+      });
+    }
+    return Math.max.apply(null, [0].concat(stages.map(function (s) { return s.end || 0; })));
+  }
+  function criticalPath(stages) {
+    var byId = {}, cache = {};
+    stages.forEach(function (s) { byId[s.id] = s; });
+    function cp(id) {
+      if (cache[id] != null) return cache[id];
+      var s = byId[id];
+      var best = 0;
+      s.deps.forEach(function (d) { best = Math.max(best, cp(d)); });
+      cache[id] = s.dur + best;
+      return cache[id];
+    }
+    var bestId = stages[0].id;
+    stages.forEach(function (s) { if (cp(s.id) > cp(bestId)) bestId = s.id; });
+    var path = [], cur = bestId;
+    while (cur) {
+      path.unshift(cur);
+      var deps = byId[cur].deps;
+      if (!deps.length) break;
+      cur = deps.reduce(function (a, b) { return cp(a) > cp(b) ? a : b; });
+    }
+    return { time: cp(bestId), path: path, ids: path.reduce(function (o, id) { o[id] = true; return o; }, {}) };
+  }
+
+  function computeGantt(cfg, state) {
+    var stages = cfg.stages.map(function (s) {
+      var d = s.dur;
+      if (cfg.variant === "ci") {
+        if (s.id === "test" && state.parallel) d /= 4;
+        if (s.cacheable && state.cache) d *= 0.6;
+        if (s.id === "test" && state.flaky) d += 45;
+      } else if (s.cacheable && state.cache) d *= 0.7;
+      return { id: s.id, label: s.label, dur: Math.max(1, d), deps: s.deps.slice(), short: s.short || s.label };
+    });
+    var workers = cfg.variant === "ci" ? 1 : Math.max(1, Number(state.workers != null ? state.workers : 2));
+    var makespan = schedule(stages, workers);
+    var cp = criticalPath(stages);
+    var pathLabel = cp.path.map(function (id) { return (stages.filter(function (s) { return s.id === id; })[0] || {}).short || id; }).join(" → ");
+    var vals = { total: makespan, critical: cp.time, path: pathLabel };
+    if (cfg.variant === "ci") {
+      vals.pass = 99 - (state.flaky ? 22 : 0) - (state.parallel ? 1 : 0);
+    } else {
+      vals.workers = workers;
+    }
+    var insight = "Total tid " + Math.round(makespan) + " s. Kritisk väg: " + pathLabel + " (" + Math.round(cp.time) + " s).";
+    if (cfg.variant === "ci") {
+      insight += state.flaky ? " Den flaky testen lägger till 45 s och sänker pass-sannolikheten." : " Inga flaky tester – pipelinen är förutsägbar.";
+    } else {
+      insight += " Fler workers kortar väntetiden, men den kritiska vägen sätter golvet.";
+    }
+    return { values: vals, meta: { stages: stages, makespan: makespan, cp: cp, workers: workers }, insight: insight, tone: cfg.variant === "ci" && state.flaky ? "warn" : "good" };
+  }
+
+  function drawGantt(lab, cfg, meta) {
+    var cv = lab.querySelector("[data-wow-canvas]");
+    var o = setupCanvas(cv), ctx = o.ctx, W = o.W, H = o.H;
+    var l = 108, r = 22, t = 26, b = 34;
+    var pw = W - l - r, ph = H - t - b;
+    var n = meta.stages.length;
+    var rowH = Math.min(42, ph / Math.max(1, n));
+    var maxT = Math.max(meta.makespan, 1);
+    function X(v) { return l + v / maxT * pw; }
+    drawGrid(ctx, l, t, pw, rowH * n, 5, n);
+    for (var i = 0; i <= 4; i++) axis(ctx, Math.round(maxT * i / 4) + "s", l + pw * i / 4, t + rowH * n + 16, "center");
+    meta.stages.forEach(function (s, i) {
+      var y = t + i * rowH + 6;
+      axis(ctx, s.label, l - 9, y + rowH / 2 - 5, "right", C.muted, 9);
+      var x = X(s.start || 0), w = Math.max(3, X(s.end || 0) - x);
+      var isCp = meta.cp.ids[s.id];
+      ctx.save();
+      ctx.fillStyle = isCp ? "rgba(247,178,103,.85)" : "rgba(110,231,216,.78)";
+      if (isCp) { ctx.shadowColor = C.orange; ctx.shadowBlur = 10; }
+      roundRect(ctx, x, y, w, rowH - 12, 5);
+      ctx.fill();
+      ctx.restore();
+      if (w > 34) axis(ctx, Math.round(s.end - s.start) + "s", x + w - 5, y + (rowH - 12) / 2, "right", "#12101a", 8);
+    });
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,122,144,.75)";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(X(meta.makespan), t); ctx.lineTo(X(meta.makespan), t + rowH * n); ctx.stroke();
+    ctx.restore();
+    axis(ctx, "klar " + Math.round(meta.makespan) + " s", X(meta.makespan), t + rowH * n + 16, "center", C.red, 9);
+    cv.setAttribute("aria-label", cfg.aria || "Interaktivt Gantt-schema");
+    legend(lab, [
+      { label: "Aktivitet", color: C.teal },
+      { label: "Kritisk väg", color: C.orange },
+      { label: "Deadline", color: C.red }
+    ]);
+  }
+  function roundRect(ctx, x, y, w, hh, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + hh, r);
+    ctx.arcTo(x + w, y + hh, x, y + hh, r);
+    ctx.arcTo(x, y + hh, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function computeStack(cfg, state) {
+    var slim = !!state.slim, cache = !!state.cache, multi = !!state.multi;
+    var layers = cfg.layers.map(function (l) {
+      var size = l.size;
+      if (slim && l.base) size *= 0.55;
+      if (multi && l.build) size *= 0;
+      return { name: l.name, size: size, color: l.color, base: l.base, build: l.build };
+    });
+    var total = layers.reduce(function (a, l) { return a + l.size; }, 0);
+    var cold = 1.1 + total / 420 + (cache ? 0 : 2.4) + (multi ? -0.5 : 0);
+    var vals = { size: total, cold: cold, layers: layers.filter(function (l) { return l.size > 0; }).length };
+    var insight = "Imagen blir " + Math.round(total) + " MB och kallstarten " + num(cold) + " s. " +
+      (cache ? "Pip-cache används." : "Utan cache hämtas alla beroenden vid start.") + " " +
+      (multi ? "Multi-stage tar bort byggverktygen ur slutimagen." : "Byggverktygen ligger kvar i slutimagen.");
+    var tone = "good";
+    if (cfg.target && (total > cfg.target.size || cold > cfg.target.cold)) tone = "warn";
+    return { values: vals, meta: { layers: layers, total: total, cold: cold, cache: cache }, insight: insight, tone: tone };
+  }
+
+  function drawStack(lab, cfg, meta) {
+    var cv = lab.querySelector("[data-wow-canvas]");
+    var o = setupCanvas(cv), ctx = o.ctx, W = o.W, H = o.H;
+    var l = 34, r = 26, t = 40, bw = W - l - r;
+    var layers = meta.layers.filter(function (x) { return x.size > 0; });
+    var total = Math.max(1, meta.total);
+    var x = l;
+    layers.forEach(function (ly) {
+      var w = ly.size / total * bw;
+      ctx.save();
+      ctx.fillStyle = ly.color;
+      ctx.shadowColor = ly.color;
+      ctx.shadowBlur = 12;
+      roundRect(ctx, x, t, Math.max(2, w), 42, 7);
+      ctx.fill();
+      ctx.restore();
+      if (w > 54) axis(ctx, Math.round(ly.size) + " MB", x + w / 2, t + 21, "center", "#12101a", 9);
+      x += w;
+    });
+    axis(ctx, "SLUTIMAGE  " + Math.round(total) + " MB", l, 22, "left", C.teal, 10);
+    var ly2 = 112;
+    axis(ctx, "VAD SOM HÄNDER VID START", l, ly2, "left", C.purple, 9);
+    var segs = [
+      { label: "pull", v: 0.45, color: C.purple },
+      { label: "packa upp", v: Math.min(2.2, total / 700), color: C.teal },
+      { label: "starta", v: 0.55, color: C.green },
+      { label: meta.cache ? "cache hit" : "cache miss", v: meta.cache ? 0.15 : 2.4, color: meta.cache ? C.green : C.red }
+    ];
+    var sum = segs.reduce(function (a, s) { return a + s.v; }, 0);
+    x = l;
+    segs.forEach(function (s) {
+      var w = s.v / sum * bw;
+      ctx.save();
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = 0.82;
+      roundRect(ctx, x, ly2 + 16, Math.max(2, w), 26, 5);
+      ctx.fill();
+      ctx.restore();
+      if (w > 50) axis(ctx, s.label, x + w / 2, ly2 + 30, "center", "#12101a", 8);
+      x += w;
+    });
+    axis(ctx, "KALLSTART  " + num(meta.cold) + " s", l, ly2 + 66, "left", C.orange, 10);
+    var y3 = 232;
+    axis(ctx, "Total tid = pull + uppackning + start" + (meta.cache ? " (cache hit)" : " (cache miss)"), l, y3, "left", C.muted, 9);
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.12)";
+    for (var i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(l, y3 + 18 + i * 8); ctx.lineTo(W - r, y3 + 18 + i * 8); ctx.stroke(); }
+    ctx.restore();
+    cv.setAttribute("aria-label", cfg.aria || "Interaktivt lagerdiagram för containerimage");
+    legend(lab, layers.map(function (ly) { return { label: ly.name, color: ly.color }; }));
+  }
+
+  function initLab(lab) {
+    var cfg;
+    try { cfg = JSON.parse(lab.querySelector("[data-wow-config]").textContent); } catch (e) { return; }
+    var state = { mode: "solo" };
+    (cfg.knobs || []).forEach(function (k) {
+      state[k.id] = k.value != null ? k.value : (k.type === "toggle" ? false : (k.min != null ? k.min : ""));
+    });
+    buildControls(lab, cfg, state);
+
+    var promptBox = lab.querySelector("[data-wow-goal]");
+    var promptText = lab.querySelector("[data-wow-prompt]");
+    var insightBox = lab.querySelector("[data-wow-insight]");
+    var modeButtons = Array.prototype.slice.call(lab.querySelectorAll("[data-wow-mode]"));
+
+    function setMode(m) {
+      state.mode = m;
+      modeButtons.forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-wow-mode") === m); });
+      var mode = (cfg.modes && cfg.modes[m]) || {};
+      promptBox.textContent = mode.goal || (m === "team" ? "Grupp · 2 min" : "Solo · 2 min");
+      promptText.textContent = mode.prompt || "";
+      render();
+    }
+    function render() {
+      var res;
+      if (cfg.engine === "flow") res = computeFlow(cfg, state);
+      else if (cfg.engine === "lineage") res = computeLineage(cfg, state);
+      else if (cfg.engine === "curve") res = computeCurve(cfg, state);
+      else if (cfg.engine === "scatter") res = computeScatter(cfg, state);
+      else if (cfg.engine === "gantt") res = computeGantt(cfg, state);
+      else res = computeStack(cfg, state);
+      renderMetrics(lab, cfg, res.values);
+      insightBox.textContent = res.insight;
+      insightBox.className = "wow-insight" + (res.tone === "bad" ? " bad" : res.tone === "warn" ? " warn" : "");
+      if (cfg.engine === "flow") drawFlow(lab, cfg, res.meta);
+      else if (cfg.engine === "lineage") drawLineage(lab, cfg, res.meta);
+      else if (cfg.engine === "curve") drawCurve(lab, cfg, res.meta);
+      else if (cfg.engine === "scatter") drawScatter(lab, cfg, res.meta);
+      else if (cfg.engine === "gantt") drawGantt(lab, cfg, res.meta);
+      else drawStack(lab, cfg, res.meta);
+    }
+
+    lab.querySelector("[data-wow-controls]").addEventListener("input", function (e) {
+      var t = e.target;
+      var id = t.getAttribute("data-wow-knob");
+      if (!id) return;
+      if (t.type === "checkbox") state[id] = t.checked;
+      else if (t.tagName === "SELECT") state[id] = t.value;
+      else state[id] = Number(t.value);
+      var out = lab.querySelector('[data-wow-output="' + id + '"]');
+      if (out) {
+        var knob = (cfg.knobs || []).filter(function (k) { return k.id === id; })[0] || {};
+        out.textContent = state[id] + (knob.unit ? " " + knob.unit : "");
+      }
+      render();
+    });
+    lab.querySelector("[data-wow-controls]").addEventListener("change", function (e) {
+      if (e.target.tagName === "SELECT") {
+        state[e.target.getAttribute("data-wow-knob")] = e.target.value;
+        render();
+      }
+    });
+    modeButtons.forEach(function (b) {
+      b.addEventListener("click", function () { setMode(b.getAttribute("data-wow-mode")); });
+    });
+    var rnd = lab.querySelector("[data-wow-random]");
+    if (rnd) rnd.addEventListener("click", function () {
+      (cfg.knobs || []).forEach(function (k) {
+        if (k.type === "toggle") state[k.id] = Math.random() > 0.45;
+        else if (k.type === "select") {
+          var opts = k.options || [];
+          var picked = opts[Math.floor(Math.random() * opts.length)];
+          state[k.id] = typeof picked === "string" ? picked : picked.value;
+        } else {
+          var step = k.step || 1;
+          var n = Math.floor((k.max - k.min) / step);
+          state[k.id] = k.min + Math.round(Math.random() * n) * step;
+        }
+      });
+      syncControlValues(lab, state, cfg);
+      render();
+    });
+    setMode("solo");
+    lab.setAttribute("data-wow-ready", "1");
+  }
+
+  Array.prototype.slice.call(document.querySelectorAll("[data-wow-lab]")).forEach(initLab);
+})();
+
+</script>
+</body>
+</html>
