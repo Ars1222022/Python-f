@@ -1,0 +1,24 @@
+{
+  "source": "SCB Arbetskraftsundersökningen (AKU) 2015-2025",
+  "data_controller": "AI Developer Student",
+  "purpose": "Educational AI training for trend analysis",
+  "legal_basis": "Legitimate interest (anonymized aggregated data)",
+  "data_types": {
+    "ar": "integer (year)",
+    "kon": "string (gender - aggregated)",
+    "total_sysselsatta_tusental": "double (aggregated count in thousands)"
+  },
+  "anonymization": {
+    "method": "Aggregation to year+gender level",
+    "direct_identifiers_removed": true,
+    "indirect_identifiers": [
+      "kon"
+    ],
+    "re_identification_risk": "LOW"
+  },
+  "data_subject_rights": "Not applicable (anonymized aggregate data)",
+  "retention_period": "Temporary – deleted after course completion",
+  "created": "2026-05-25T21:20:44.746335",
+  "gdpr_compliant": true,
+  "ai_act_risk_level": "LOW (aggregated statistics, not high-risk AI)"
+}
