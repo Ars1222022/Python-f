@@ -1,0 +1,52 @@
+# Keep the build context small and reproducible.
+# Prevents mlflow.db, dvc.exe, models and secrets leaking into images.
+
+.git
+.github
+.gitignore
+
+# Data & models are mounted as volumes - never bake them in
+models/
+data/raw/*.csv
+data/processed/
+
+# MLflow local database (tracked via the mlflow_data volume instead)
+mlflow.db
+mlflow.db-journal
+mlruns/
+mlartifacts/
+
+# DVC
+.dvc/
+dvc_cache/
+*.dvc.tmp
+
+# Secrets & local config
+.env
+*.env
+!.env.example
+
+# Docs / notebooks / editors
+.vscode/
+.idea/
+.ipynb_checkpoints/
+*.md
+docs/
+k8s/
+
+# Windows noise
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.ps1
+*.sh
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+.venv/

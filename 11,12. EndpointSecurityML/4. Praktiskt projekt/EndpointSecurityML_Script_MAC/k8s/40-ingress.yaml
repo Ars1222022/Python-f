@@ -1,0 +1,71 @@
+# Routes both services through one host. Requires an Ingress controller
+# (nginx, traefik, cloud LB...) - kind/minikube ship with one.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: endpointsecurityml
+  namespace: endpointsecurityml
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: endpointsecurityml.local
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8000
+          - path: /mlflow(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: mlflow
+                port:
+                  number: 5000
+  # For local clusters it is easier to use NodePort:
+  #   kubectl -n endpointsecurityml patch svc api -p '{"spec":{"type":"NodePort"}}'
+  # and then reach it on http://localhost:<nodePort>
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api
+  namespace: endpointsecurityml
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-allow-metrics
+  namespace: endpointsecurityml
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  policyTypes:
+    - Ingress
+  ingress:
+    # Metrics/health from Prometheus or a monitoring namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Same-namespace traffic
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8000

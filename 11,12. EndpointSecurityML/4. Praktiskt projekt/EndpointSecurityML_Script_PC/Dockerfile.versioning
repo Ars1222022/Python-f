@@ -1,0 +1,26 @@
+# =============================================================================
+# DVC image - data versioning (runs on Linux/macOS/Windows via Docker)
+# =============================================================================
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DVC_NO_ANALYTICS=true
+
+# Optional host-UID mapping so created files are not root-owned
+ARG DVC_UID=0
+RUN if [ "${DVC_UID}" != "0" ]; then \
+        useradd --create-home --uid "${DVC_UID}" dvc ; \
+    fi
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir dvc==3.59.2 pathspec==0.12.1
+
+WORKDIR /workspace
+
+ENTRYPOINT ["dvc"]
+CMD ["--help"]

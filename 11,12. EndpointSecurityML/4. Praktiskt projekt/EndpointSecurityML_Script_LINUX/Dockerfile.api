@@ -1,0 +1,37 @@
+# =============================================================================
+# API / training image - FastAPI model serving
+# Pinned to match requirements.txt exactly (train and serve in one env)
+# =============================================================================
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    MODEL_DIR=/app/models/production
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libpq5 curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Dependencies first so code edits do not invalidate the layer cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+COPY src ./src
+COPY tests ./tests
+COPY airflow/dags ./airflow/dags
+
+RUN useradd --create-home --uid 10001 appuser \
+    && mkdir -p /app/models/production \
+    && chown -R appuser:appuser /app
+
+USER appuser
+EXPOSE 8000
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)" || exit 1
+
+CMD ["uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8000"]

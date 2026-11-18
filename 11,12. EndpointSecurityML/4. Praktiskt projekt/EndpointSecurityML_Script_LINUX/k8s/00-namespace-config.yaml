@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: endpointsecurityml
+  labels:
+    app.kubernetes.io/part-of: endpointsecurityml
+---
+# ConfigMap holds non-sensitive settings shared by all workloads.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: endpointsecurityml-config
+  namespace: endpointsecurityml
+data:
+  MODEL_DIR: /app/models/production
+  MLFLOW_TRACKING_URI: http://mlflow:5000
+  API_URL: http://api:8000
+  LOG_LEVEL: INFO
+---
+# Secret template.
+# For a real cluster create it with:
+#   kubectl -n endpointsecurityml create secret generic endpointsecurityml-secrets \
+#     --from-literal=POSTGRES_PASSWORD=... --from-literal=MLFLOW_SECRET_KEY=...
+# and keep the values out of git.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: endpointsecurityml-secrets
+  namespace: endpointsecurityml
+type: Opaque
+stringData:
+  POSTGRES_USER: airflow
+  POSTGRES_PASSWORD: "CHANGE-ME"
+  POSTGRES_DB: airflow
+  AIRFLOW_FERNET_KEY: "CHANGE-ME-32-CHAR-FERNET-KEY-X"
+  MLFLOW_SECRET_KEY: "CHANGE-ME"

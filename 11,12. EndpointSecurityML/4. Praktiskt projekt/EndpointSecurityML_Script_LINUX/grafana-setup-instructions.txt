@@ -1,0 +1,111 @@
+GRAFANA SETUP - STEP BY STEP
+===========================================================
+
+This file is written by 9setup-monitoring.ps1 and explains what that script
+set up and what to do in the Grafana UI afterwards.
+
+
+WHAT THE SCRIPT ALREADY DID FOR YOU
+-----------------------------------------------------------
+  1. Created grafana\dashboards\ for the dashboard JSON
+  2. Created grafana\provisioning\datasources\prometheus.yaml
+       -> Grafana gets a "Prometheus" data source pointing at
+          http://prometheus:9090 automatically on startup
+  3. Created grafana\provisioning\dashboards\provider.yaml
+       -> Grafana loads every dashboard in the dashboards folder
+          automatically, so there is NO manual import step
+  4. Started Prometheus and Grafana (the "monitoring" compose profile)
+  5. Sent 12 sample predictions so the graphs are not empty
+
+NOTE: the old version of this file told you to manually upload the dashboard
+JSON. That is no longer necessary - Grafana is provisioned automatically.
+
+
+STEP 1 - OPEN GRAFANA
+-----------------------------------------------------------
+Open:  http://localhost:3000
+Login: admin / admin
+       (or whatever you set in .env as GRAFANA_USER / GRAFANA_PASSWORD)
+
+
+STEP 2 - FIND THE DASHBOARD
+-----------------------------------------------------------
+In the left menu click:  Dashboards
+Open the folder:         EndpointSecurityML
+Click:                   EndpointSecurityML - API Monitoring
+
+The dashboard is read-only by default so you cannot break it by accident.
+Duplicate it if you want to customise panels.
+
+
+STEP 3 - THE 10 PANELS EXPLAINED
+-----------------------------------------------------------
+  Requests / sec            How fast clients are calling the API
+  Error rate                Failed requests per second
+  Predictions total         Every prediction made since startup
+  Attack predictions        How many were classified as an attack
+  Request rate by status    Traffic split by HTTP status code
+  Response latency          p50 / p95 / p99 in seconds
+  Predictions by threat type  Normal vs Attack over time
+  Prediction confidence     Mean confidence of the model
+  Requests by endpoint      Which routes are most used
+  Error rate by endpoint    Which routes fail most
+
+Useful PromQL to explore in Prometheus (http://localhost:9090):
+
+  sum(rate(http_requests_total[1m]))
+  sum(rate(http_errors_total[1m]))
+  hist_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket[5m])))
+  sum by (threat_type) (predictions_total)
+  sum(rate(prediction_confidence_sum[5m])) / sum(rate(prediction_confidence_count[5m]))
+
+
+STEP 4 - GENERATE MORE DATA
+-----------------------------------------------------------
+Metrics only exist after requests have been served. Send some:
+
+PowerShell:
+  1..50 | ForEach-Object {
+      $b = @{NetworkConnections=25; ProcessName='mimikatz.exe'; Username='attacker'} | ConvertTo-Json
+      Invoke-RestMethod -Uri http://localhost:8000/predict -Method Post -Body $b -ContentType 'application/json' | Out-Null
+  }
+
+Then refresh the dashboard (auto-refresh is set to 10s).
+
+
+STEP 5 - CHANGE CREDENTIALS
+-----------------------------------------------------------
+Edit .env:
+
+  GRAFANA_USER=youruser
+  GRAFANA_PASSWORD=yourpassword
+
+Then apply:
+
+  docker compose --profile monitoring up -d
+
+The data volume is preserved, so dashboards survive the change.
+
+
+TROUBLESHOOTING
+-----------------------------------------------------------
+Dashboards folder is empty
+    The provider only reads /var/lib/grafana/dashboards inside the
+    container. Check the folder exists on the host:
+      Get-ChildItem grafana\dashboards
+
+Panels show "No data"
+    No traffic yet. Send predictions (Step 4) and wait ~30s for a
+    Prometheus scrape cycle.
+
+Prometheus shows the target as DOWN
+    docker compose logs api        - is the API running?
+    docker compose logs prometheus - is it scraping the right port?
+    The API must expose /metrics on port 8000 (it does by default).
+
+"port is already allocated" for 3000
+    Change GRAFANA_PORT in .env, e.g. GRAFANA_PORT=3001
+
+Grafana asks for a password change on first login
+    That is normal for admin/admin. Set a new one, or set
+    GF_SECURITY_ADMIN_PASSWORD in .env before the first start.

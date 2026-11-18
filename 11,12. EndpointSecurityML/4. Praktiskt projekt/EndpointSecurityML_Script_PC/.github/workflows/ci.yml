@@ -1,0 +1,53 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create directories
+        run: |
+          mkdir -p data/raw models/production
+
+      - name: Generate seed data
+        run: python -m src.data_generation.generate_seed_data
+
+      - name: Train the model
+        run: python -m src.training.train_no_mlflow
+
+      - name: Verify train/serve feature contract
+        run: |
+          python -c "
+          import sys, joblib, glob
+          sys.path.insert(0, '.')
+          from src.api.utils import prepare_features, FEATURE_NAMES
+          model = joblib.load(glob.glob('models/production/*.pkl')[0])
+          frame = prepare_features(20, 'mimikatz.exe', 'attacker')
+          assert list(frame.columns) == FEATURE_NAMES, 'column drift!'
+          assert model.n_features_in_ == len(FEATURE_NAMES), (
+              'model expects %d, API sends %d' % (model.n_features_in_, len(FEATURE_NAMES)))
+          model.predict(frame)
+          print('contract OK:', FEATURE_NAMES)
+          "
+
+      - name: Run tests
+        # No '|| echo' here - a failing test must fail the build
+        run: pytest tests/ -v

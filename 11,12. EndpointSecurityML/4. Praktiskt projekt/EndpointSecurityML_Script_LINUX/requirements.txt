@@ -1,0 +1,31 @@
+# =============================================================================
+# EndpointSecurityML - single source of truth for Python dependencies.
+# These exact versions are used by Dockerfile.api, Dockerfile.mlflow and
+# Dockerfile.airflow. Keep all three in sync or model pickles will not load.
+# =============================================================================
+
+# --- Web / API ---
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+pydantic==2.11.4
+
+# --- Data science ---
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.4.2
+joblib==1.4.2
+
+# --- Tracking ---
+mlflow==2.12.2
+SQLAlchemy==2.0.40
+
+# --- Database ---
+psycopg[binary]==3.2.9
+
+# --- Monitoring ---
+prometheus-client==0.21.1
+
+# --- Testing ---
+pytest==8.3.5
+httpx==0.28.1
+requests==2.32.3
